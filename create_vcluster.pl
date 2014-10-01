@@ -25,11 +25,14 @@ sub usage
 
 $net_ip .= ".";
 
+unless (-d "img") { system "mkdir img";}
+unless (-d "nodes") { system "mkdir nodes";}
+
 unless (-f "img/base.img") {
 
     print "Download base.img...\n";
     system "wget -P img http://ixa2.si.ehu.es/newsreader_storm_resources/base.img";
-
+    system "wget -P img http://ixa2.si.ehu.es/newsreader_storm_resources/base_img_ssh_rsa_key.txt";
 }
 
 

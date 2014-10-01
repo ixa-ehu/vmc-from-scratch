@@ -26,6 +26,7 @@ sub usage
 $net_ip .= ".";
 
 unless (-d "img") { system "mkdir img";}
+unless (-d "tmp") { system "mkdir tmp";}
 unless (-d "nodes") { system "mkdir nodes";}
 
 unless (-f "img/base.img") {

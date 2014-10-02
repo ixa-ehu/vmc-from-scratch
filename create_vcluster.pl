@@ -12,14 +12,21 @@ my $boss_name = "bossvm";
 my $slave_first = "101";
 my $slave_name = "workervm";
 my $num_nodes = 1;
+my $run_vms = 0;
+
+my @conf_name;
+my @conf_ip;
+my @conf_uuid;
+
+
 my $help;
 
-usage() if ( @ARGV != 1 or !GetOptions('help|?' => \$help, 'master-ip=s'=> \$master_ip, 'net=s' => \$net_ip, 'boss-ip=s' => \$boss_ip, 'boss-name=s' => \$boss_name, 'worker-first-ip=s' => \$slave_first, 'worker-name=s' => \$slave_name) or defined $help );
+usage() if (!GetOptions('help|?' => \$help, 'master-ip=s'=> \$master_ip, 'net=s' => \$net_ip, 'boss-ip=s' => \$boss_ip, 'boss-name=s' => \$boss_name, 'worker-first-ip=s' => \$slave_first, 'worker-name=s' => \$slave_name, 'run' => \$run_vms) or defined $help);
 
 sub usage
 {
   print "Unknown option: @_\n" if ( @_ );
-  print "usage: ./create_vcluster.pl [--help|-?] [--master-ip MASTER_IP] [--net XXX.XXX.XXX_NETWORK] [--boss-ip XXX_BOSS_IP] [--boss-name BOSS_NAME] [--worker-first-ip XXX_WORKER_IP] [--worker-name WORKER_NAME] NUM_OF_WORKER_NODES\n";
+  print "usage: ./create_vcluster.pl [--help|-?] [--master-ip MASTER_IP] [--net XXX.XXX.XXX_NETWORK] [--boss-ip XXX_BOSS_IP] [--boss-name BOSS_NAME] [--worker-first-ip XXX_WORKER_IP] [--worker-name WORKER_NAME] [--run] NUM_OF_WORKER_NODES\n";
   exit;
 }
 
@@ -68,20 +75,26 @@ if ($#ARGV==0) {
 	    
 	}
 
-	# run VMs
+	# create conf file
+	createConfFile();
+
+	# run VMs?
+
+	if ($run_vms) {
 	
-	print "Starting VMs...\n\n";
-	system "virsh create nodes/".$boss_name.".xml";
-	for (my $ino=0; $ino < $num_nodes; $ino++) {
-	    system "virsh create nodes/".$slave_name.$ino.".xml";
-	}	
+	    print "Starting VMs...\n\n";
+	    system "virsh create nodes/".$boss_name.".xml";
+	    for (my $ino=0; $ino < $num_nodes; $ino++) {
+		system "virsh create nodes/".$slave_name.$ino.".xml";
+	    }	
 
-	print "Now you can log into ".$net_ip.$boss_ip." (".$boss_name.") as root and run /root/init_system.sh\n\n";
+	    print "Now you can log into ".$net_ip.$boss_ip." (".$boss_name.") as root and run /root/init_system.sh\n\n";
 	    
+	}
 
-    } else { finish ("USAGE: create_vcluster.pl worker_num"); }
-
-} else { finish ("USAGE: create_vcluster.pl worker_num"); }
+    } else { usage(); }
+    
+} else { usage(); }
 
 sub createBossVM {
 
@@ -90,7 +103,8 @@ sub createBossVM {
     # prepare def
 
     my $uuid = `uuidgen`;
-    chomp $uuid;
+    chomp $uuid;   
+    push(@conf_uuid,$uuid);
     $uuid =~ s/\-/\\\-/g;
     system "cp templates/vmdef/def.xml nodes/".$boss_name.".xml";
     system "sed -i 's/_VM_NAME_/".$boss_name."/g' nodes/".$boss_name.".xml";
@@ -117,6 +131,7 @@ sub createBossVM {
     system "virt-copy-in -a nodes/".$boss_name.".img  tmp/puppet.conf tmp/fileserver.conf tmp/conf_files tmp/manifests /etc/puppet/";
     system "virt-copy-in -a nodes/".$boss_name.".img  tmp/hosts /etc/puppet/conf_files/";
     system "guestfish -a nodes/".$boss_name.".img -i command '/sbin/chkconfig puppetmaster on'";
+    system "guestfish -a nodes/".$boss_name.".img -i command '/sbin/chkconfig mongod on'";
 
     # copy scripts
     system "virt-copy-in -a nodes/".$boss_name.".img tmp/update_nlp_components_boss.sh /home/newsreader";
@@ -141,6 +156,7 @@ sub createSlaveVM {
 
     my $uuid = `uuidgen`;
     chomp $uuid;
+    push(@conf_uuid,$uuid);
     $uuid =~ s/\-/\\\-/g;
     system "cp templates/vmdef/def.xml nodes/".$nodename.".xml";
     system "sed -i 's/_VM_NAME_/".$nodename."/g' nodes/".$nodename.".xml";
@@ -197,12 +213,18 @@ sub createHostsFile {
     open HFILE, ">tmp/hosts";
     print HFILE "127.0.0.1    localhost localhost.localdomain localhost4 localhost4.localdomain4\n";
     print HFILE "$net_ip$boss_ip    $boss_name\n";
+    push(@conf_ip,"$net_ip$boss_ip");
+    push(@conf_name,$boss_name);
     my $slave_cnt = $slave_first; 
 
     for (my $i = 0; $i < $num_nodes; $i++) {
 
 	print HFILE "$net_ip$slave_cnt    $slave_name$i\n";
+	push(@conf_ip,"$net_ip$slave_cnt");
+	push(@conf_name,"$slave_name$i");
+
 	$slave_cnt++;
+
 
     }
     
@@ -358,6 +380,24 @@ sub createScripts() {
     my $num_nodes_b = $num_nodes-1;
     system "sed -i 's/_NUM_NODES_/".$num_nodes_b."/g' tmp/init_system.sh";
     system "sed -i 's/_WORKER_NAME_/".$slave_name."/g' tmp/init_system.sh";
+
+}
+
+sub createConfFile() {
+
+    open CFILE, ">nodes/cluster.conf";
+
+    for (my $i=0; $i<=$num_nodes; $i++) {
+
+	print CFILE $conf_name[$i]."\t";
+	print CFILE $conf_ip[$i]."\t";
+	print CFILE $macarray[$i]."\t";
+	print CFILE $conf_uuid[$i];
+	print CFILE "\n";
+
+    }
+
+    close CFILE;
 
 }
 

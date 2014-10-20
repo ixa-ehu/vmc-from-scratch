@@ -17,7 +17,7 @@ my $run_vms = 0;
 my @conf_name;
 my @conf_ip;
 my @conf_uuid;
-
+my @macarray;
 
 my $help;
 
@@ -43,8 +43,6 @@ unless (-f "img/base.img") {
     system "wget -P img http://ixa2.si.ehu.es/newsreader_storm_resources/base_img_ssh_rsa_key.txt";
 }
 
-
-my @macarray;
 my $cwd = getcwd();
 $cwd =~ s/\//\\\//g;
 
@@ -114,7 +112,7 @@ sub createBossVM {
     
     # prepare img
     system "cp img/base.img nodes/".$boss_name.".img";
-    system "guestfish -a nodes/".$boss_name.".img -i rm /etc/udev/rules.d/70-persistent-net.rules";
+    system "guestfish -a nodes/".$boss_name.".img -i rm /etc/udev/rules.d/70-persistent-net.rules &> /dev/null";
 # virt-customize ez dago RHEL6ean
 #    system "virt-customize -a nodes/".$boss_name.".img --upload tmp/ifcfg-eth0.".$boss_name.":/etc/sysconfig/network-scripts/ifcfg-eth0";
 #    system "virt-customize -a nodes/".$boss_name.".img --upload tmp/network.".$boss_name.":/etc/sysconfig/network";
@@ -126,12 +124,18 @@ sub createBossVM {
     system "guestfish -a nodes/".$boss_name.".img -i mv /etc/sysconfig/network.".$boss_name." /etc/sysconfig/network";
     system "virt-copy-in -a nodes/".$boss_name.".img tmp/hosts /etc/";
     system "virt-copy-in -a nodes/".$boss_name.".img tmp/known_hosts /root/.ssh";
+    system "virt-copy-in -a nodes/".$boss_name.".img tmp/network.".$boss_name." /etc/sysconfig/";
+    system "guestfish -a nodes/".$boss_name.".img -i mv /etc/sysconfig/network.".$boss_name." /etc/sysconfig/network";
+    system "virt-copy-in -a nodes/".$boss_name.".img templates/various/ntp.conf /etc";
 
     # copy puppet files and chkconfig puppetmaster
     system "virt-copy-in -a nodes/".$boss_name.".img  tmp/puppet.conf tmp/fileserver.conf tmp/conf_files tmp/manifests /etc/puppet/";
     system "virt-copy-in -a nodes/".$boss_name.".img  tmp/hosts /etc/puppet/conf_files/";
     system "guestfish -a nodes/".$boss_name.".img -i command '/sbin/chkconfig puppetmaster on'";
     system "guestfish -a nodes/".$boss_name.".img -i command '/sbin/chkconfig mongod on'";
+    system "guestfish -a nodes/".$boss_name.".img -i command '/sbin/chkconfig ntpd on'";
+    system "guestfish -a nodes/".$boss_name.".img -i command '/sbin/chkconfig ntpdate on'";
+    #
 
     # copy scripts
     system "virt-copy-in -a nodes/".$boss_name.".img tmp/update_nlp_components_boss.sh /home/newsreader";
@@ -167,7 +171,7 @@ sub createSlaveVM {
     # prepare img
 
     system "cp img/base.img nodes/".$nodename.".img";
-    system "guestfish -a nodes/".$nodename.".img -i rm /etc/udev/rules.d/70-persistent-net.rules";
+    system "guestfish -a nodes/".$nodename.".img -i rm /etc/udev/rules.d/70-persistent-net.rules &> /dev/null";
 # virt-customize ez dago RHEL6ean
 #    system "virt-customize -a nodes/".$nodename.".img --upload tmp/ifcfg-eth0.".$nodename.":/etc/sysconfig/network-scripts/ifcfg-eth0";
 #    system "virt-customize -a nodes/".$nodename.".img --upload tmp/network.".$nodename.":/etc/sysconfig/network";
@@ -179,9 +183,14 @@ sub createSlaveVM {
     system "virt-copy-in -a nodes/".$nodename.".img tmp/hosts /etc/";
     system "virt-copy-in -a nodes/".$nodename.".img tmp/known_hosts /root/.ssh";
     system "virt-copy-in -a nodes/".$nodename.".img tmp/known_hosts /home/newsreader/.ssh";
+    system "virt-copy-in -a nodes/".$nodename.".img tmp/ntp.conf /etc";
 
     # copy puppet.conf file
     system "virt-copy-in -a nodes/".$nodename.".img  tmp/puppet.conf /etc/puppet/";
+
+    # ntpdate on
+    system "guestfish -a nodes/".$nodename.".img -i command '/sbin/chkconfig ntpd on'";
+    system "guestfish -a nodes/".$nodename.".img -i command '/sbin/chkconfig ntpdate on'";
 
     # copy scripts
     system "virt-copy-in -a nodes/".$nodename.".img tmp/update_nlp_components_worker.sh /home/newsreader";
@@ -286,27 +295,49 @@ sub createPuppetFiles {
     system "cp -R templates/puppet_manifests tmp/manifests";
     # main manifest for master (site.pp)
     open PFILE, ">tmp/manifests/site.pp";
+    print PFILE "import \"copy-hosts-file.pp\"\n";
     print PFILE "import \"create-hosts-file.pp\"\n";
     print PFILE "import \"install-zookeeper.pp\"\n";
     print PFILE "import \"install-kafka.pp\"\n";
     print PFILE "import \"install-storm.pp\"\n";
+    print PFILE "import \"create-boss-scripts.pp\"\n";
+    print PFILE "import \"create-worker-scripts.pp\"\n";
+    print PFILE "import \"create-boss-supervisord-conf.pp\"\n";
+    print PFILE "import \"create-worker-supervisord-conf.pp\"\n";
+    print PFILE "import \"run-zookeeper.pp\"\n";
+    print PFILE "import \"run-kafka.pp\"\n";
+    print PFILE "import \"run-storm-boss.pp\"\n";
+    print PFILE "import \"run-storm-worker.pp\"\n";
+    print PFILE "import \"create-dbpedia-logdir\"\n";
     print PFILE "\n";
     print PFILE "node '$boss_name' {\n";
-    print PFILE "  include create-hosts-file\n";
+    print PFILE "  include copy-hosts-file\n";
     print PFILE "  include install-zookeeper\n";
     print PFILE "  include install-kafka\n";
     print PFILE "  include install-storm\n";
+    print PFILE "  include create-boss-scripts\n";
+    print PFILE "  include create-boss-supervisord-conf\n";
+    print PFILE "  include run-zookeeper\n";
+    print PFILE "  include run-kafka\n";
+    print PFILE "  include run-storm-boss\n";
     print PFILE "}\n";
     print PFILE "\n";
     
-    for (my $i = 0; $i < $num_nodes; $i++) {
+#    for (my $i = 0; $i < $num_nodes; $i++) {
 
-	print PFILE "node '$slave_name$i' {\n";
-	print PFILE "  include install-storm\n";
-	print PFILE "}\n";
-	print PFILE "\n";
+#	print PFILE "node '$slave_name$i' {\n";
+    
+    print PFILE "node /^".$slave_name."\\d+\$/ {\n";
+    print PFILE "  include create-hosts-file\n";
+    print PFILE "  include install-storm\n";
+    print PFILE "  include create-worker-scripts\n";
+    print PFILE "  include create-worker-supervisord-conf\n";
+    print PFILE "  include create-dbpedia-logdir\n";
+    print PFILE "  include run-storm-worker\n";
+    print PFILE "}\n";
+#	print PFILE "\n";
 	
-    }
+#    }
 
     close PFILE;
 
@@ -316,6 +347,8 @@ sub createPuppetFiles {
     system "cp -R templates/conf_files tmp/";
     # storm.conf
     system "sed -i 's/_BOSS_NAME_/".$boss_name."/g' tmp/conf_files/storm.conf";
+    # isrunning_zookeeper.sh
+    system "sed -i 's/_BOSS_NAME_/".$boss_name."/g' tmp/conf_files/isrunning_zookeeper.sh";
 
 }
 
@@ -362,6 +395,9 @@ sub createNetCfgFiles {
 	
     }
 
+    # worker ntp config
+    system "cp templates/various/worker_ntp.conf tmp/ntp.conf";
+    system "sed -i 's/_BOSS_NAME_/".$boss_name."/g' tmp/ntp.conf";
 
 }
 
@@ -403,6 +439,7 @@ sub createConfFile() {
 
 sub checkDeps {
     
+    if (!-f "/usr/bin/wget" || !-x "/usr/bin/wget") { finish("We need executable /usr/bin/wget"); }
     if (!-f "/usr/bin/virsh" || !-x "/usr/bin/virsh") { finish("We need executable /usr/bin/virsh"); }
     if (!-f "/usr/bin/guestfish" || !-x "/usr/bin/guestfish") { finish("We need executable /usr/bin/guestfish"); }
     if (!-f "/usr/bin/virt-copy-in" || !-x "/usr/bin/virt-copy-in") { finish("We need executable /usr/bin/virt-copy-in"); }

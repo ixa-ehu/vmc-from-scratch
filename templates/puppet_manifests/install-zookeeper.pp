@@ -60,19 +60,6 @@ class install-zookeeper () {
     group => $group,
   }
 
-  file { '/etc/zookeeper':
-    ensure => directory,
-    owner => $user,
-    group => $group,
-  }
-
-  file { '/etc/zookeeper/conf':
-    ensure => directory,
-    owner => $user,
-    group => $group,
-    require => File['/etc/zookeeper'],
-  }
-
   file { 'log-dir':
     name => '/var/log/zookeeper',
     ensure => 'directory',
@@ -82,11 +69,10 @@ class install-zookeeper () {
 
   file { 'conf-file':
     ensure => file,
-    name => '/etc/zookeeper/conf/zoo.cfg',
+    name => '/etc/zookeeper.cfg',
     owner => $user,
     group => $group,
-    source => 'puppet:///conf_files/zookeeper.conf',
-    require => File['/etc/zookeeper/conf'],
+    source => 'puppet:///conf_files/zookeeper.cfg',
   }    
   
 }

@@ -64,20 +64,13 @@ class install-kafka () {
     group => $group,
     require => File['kafka-chown'],
   }
-
-  file { ['/etc/kafka', '/etc/kafka/config']:
-    ensure => directory,
-    owner => $user,
-    group => $group,
-  }
   
   file { 'kafka-conf':
     ensure => file,
-    name => '/etc/kafka/config/server.properties',
+    name => '/etc/kafka_server.properties',
     owner => $user,
     group => $group,
     source => 'puppet:///conf_files/kafka_server.properties',
-    require => File['/etc/kafka/config'],
   }
 
 }

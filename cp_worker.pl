@@ -67,8 +67,8 @@ if ($#ARGV >= 0) {
 
 sub updateBossImg {
     
-    system "virt-copy-in -a ".$boss_img." ".$tmpdir."/hosts /etc/";
-    system "virt-copy-in -a ".$boss_img." ".$tmpdir."/known_hosts /root/.ssh";
+    runCommand("virt-copy-in -a ".$boss_img." ".$tmpdir."/hosts /etc/");
+    runCommand("virt-copy-in -a ".$boss_img." ".$tmpdir."/known_hosts /root/.ssh");
     
 }
 
@@ -82,26 +82,26 @@ sub createWorkerVM {
     my $uuid = `uuidgen`;
     chomp $uuid;
     $uuid =~ s/\-/\\\-/g;
-    system "cp ".$Bin."/templates/vmdef/def.xml ".$Bin."/nodes/".$nodename.".xml";
-    system "sed -i 's/_VM_NAME_/".$nodename."/g' ".$Bin."/nodes/".$nodename.".xml";
-    system "sed -i 's/_UUID_/".$uuid."/g' ".$Bin."/nodes/".$nodename.".xml";
-    system "sed -i 's/_IMG_PATH_/".$Bin_f."\\/nodes\\/".$nodename.".img/g' ".$Bin."/nodes/".$nodename.".xml";
-    system "sed -i 's/_MACADDR_/".$macarray[$i]."/g' ".$Bin."/nodes/".$nodename.".xml";
+    runCommand("cp ".$Bin."/templates/vmdef/def.xml ".$Bin."/nodes/".$nodename.".xml");
+    runCommand("sed -i 's/_VM_NAME_/".$nodename."/g' ".$Bin."/nodes/".$nodename.".xml");
+    runCommand("sed -i 's/_UUID_/".$uuid."/g' ".$Bin."/nodes/".$nodename.".xml");
+    runCommand("sed -i 's/_IMG_PATH_/".$Bin_f."\\/nodes\\/".$nodename.".img/g' ".$Bin."/nodes/".$nodename.".xml");
+    runCommand("sed -i 's/_MACADDR_/".$macarray[$i]."/g' ".$Bin."/nodes/".$nodename.".xml");
 
     # prepare img
 
-    system "cp ".$worker_img."  ".$Bin."/nodes/".$nodename.".img";
-    system "guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm /etc/udev/rules.d/70-persistent-net.rules &> /dev/null";
-    system "guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm-rf /var/lib/puppet &> /dev/null";
-    system "guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm-rf /var/lib/storm/supervisor &> /dev/null";
-    system "guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm-rf /var/lib/storm/workers &> /dev/null";
-    system "virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/ifcfg-eth0.".$nodename." /etc/sysconfig/network-scripts/";
-    system "guestfish -a ".$Bin."/nodes/".$nodename.".img -i mv /etc/sysconfig/network-scripts/ifcfg-eth0.".$nodename." /etc/sysconfig/network-scripts/ifcfg-eth0";
-    system "virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/network.".$nodename." /etc/sysconfig/";
-    system "guestfish -a ".$Bin."/nodes/".$nodename.".img -i mv /etc/sysconfig/network.".$nodename." /etc/sysconfig/network";
-    system "virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/hosts /etc/";
-    system "virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/known_hosts /root/.ssh";
-    system "virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/known_hosts /home/newsreader/.ssh";
+    runCommand("cp ".$worker_img."  ".$Bin."/nodes/".$nodename.".img");
+    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm /etc/udev/rules.d/70-persistent-net.rules &> /dev/null");
+    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm-rf /var/lib/puppet &> /dev/null");
+    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm-rf /var/lib/storm/supervisor &> /dev/null");
+    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm-rf /var/lib/storm/workers &> /dev/null");
+    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/ifcfg-eth0.".$nodename." /etc/sysconfig/network-scripts/");
+    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i mv /etc/sysconfig/network-scripts/ifcfg-eth0.".$nodename." /etc/sysconfig/network-scripts/ifcfg-eth0");
+    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/network.".$nodename." /etc/sysconfig/");
+    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i mv /etc/sysconfig/network.".$nodename." /etc/sysconfig/network");
+    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/hosts /etc/");
+    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/known_hosts /root/.ssh");
+    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/known_hosts /home/newsreader/.ssh");
 
 }
 
@@ -121,10 +121,10 @@ sub createHostsFile {
 
     # get boss hosts
     
-    system "virt-copy-out -a ".$boss_img." /etc/hosts ".$tmpdir;
+    runCommand("virt-copy-out -a ".$boss_img." /etc/hosts ".$tmpdir);
     
 
-    open HFILE, ">>".$tmpdir."/hosts";
+    open HFILE, ">>".$tmpdir."/hosts" or finish("ERROR: Cannot open ".$tmpdir."/hosts");
     
     for(my $i=0; $i <= $#iplist; $i++) {
 
@@ -140,16 +140,16 @@ sub createKnownHostsFile {
 
     
     my $rsakey = "";
-    open RFILE, "<".$Bin."/img/base_img_ssh_rsa_key.txt";
+    open RFILE, "<".$Bin."/img/base_img_ssh_rsa_key.txt" or finish("ERROR: Cannot read ".$Bin."/img/base_img_ssh_rsa_key.txt");
     $rsakey = do { local $/; <RFILE> };
     close RFILE;
     chomp $rsakey;    
 
     # get boss known_hosts
     
-    system "virt-copy-out -a ".$boss_img." /root/.ssh/known_hosts ".$tmpdir;
+    runCommand("virt-copy-out -a ".$boss_img." /root/.ssh/known_hosts ".$tmpdir);
 
-    open HFILE, ">>".$tmpdir."/known_hosts";
+    open HFILE, ">>".$tmpdir."/known_hosts" or finish("ERROR: Cannot create ".$tmpdir."/known_hosts");
 
     for(my $i=0; $i <= $#iplist; $i++) {
 
@@ -166,22 +166,22 @@ sub createNetCfgFiles {
 
     for(my $i=0; $i <= $#iplist; $i++) {
 
-	    open NFILE, ">".$tmpdir."/ifcfg-eth0.".$namelist[$i]."\n";
-	    print NFILE "DEVICE=eth0\n";
-	    print NFILE "HWADDR=".$macarray[$i]."\n";
-	    print NFILE "TYPE=Ethernet\n";
-	    print NFILE "ONBOOT=yes\n";
-	    print NFILE "NM_CONTROLLED=no\n";
-	    print NFILE "BOOTPROTO=none\n";
-	    print NFILE "IPADDR=".$iplist[$i]."\n";
-	    print NFILE "NETMASK=255.255.252.0\n";
-	    print NFILE "GATEWAY=".$gw_ip."\n"; # FIXME
-	    close NFILE;
+	open NFILE, ">".$tmpdir."/ifcfg-eth0.".$namelist[$i] or finish("ERROR: Cannot create ".$tmpdir."/ifcfg-eth0.".$namelist[$i]);
+	print NFILE "DEVICE=eth0\n";
+	print NFILE "HWADDR=".$macarray[$i]."\n";
+	print NFILE "TYPE=Ethernet\n";
+	print NFILE "ONBOOT=yes\n";
+	print NFILE "NM_CONTROLLED=no\n";
+	print NFILE "BOOTPROTO=none\n";
+	print NFILE "IPADDR=".$iplist[$i]."\n";
+	print NFILE "NETMASK=255.255.252.0\n";
+	print NFILE "GATEWAY=".$gw_ip."\n"; # FIXME
+	close NFILE;
 
-	    open NFILE, ">".$tmpdir."/network.".$namelist[$i]."\n";
-	    print NFILE "HOSTNAME=".$namelist[$i]."\n";
-	    print NFILE "NETWORKING=yes\n";
-	    close NFILE;
+	open NFILE, ">".$tmpdir."/network.".$namelist[$i] or finish("ERROR: Cannot create ".$tmpdir."/network.".$namelist[$i]);
+	print NFILE "HOSTNAME=".$namelist[$i]."\n";
+	print NFILE "NETWORKING=yes\n";
+	close NFILE;
 	    
     }
 
@@ -211,4 +211,12 @@ sub finish {
     my ($p) = @_;
     print $p."\n";
     exit;
+}
+
+sub runCommand {
+    
+    my ($command) = @_;
+    system ($command) == 0
+	or finish("FAILED: ".$command);
+
 }

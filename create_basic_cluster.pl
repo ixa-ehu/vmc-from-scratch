@@ -125,7 +125,6 @@ sub createBossVM {
     runCommand("guestfish -a ".$Bin."/nodes/".$boss_name.".img -i command '/sbin/chkconfig puppetmaster on'");
     runCommand("guestfish -a ".$Bin."/nodes/".$boss_name.".img -i command '/sbin/chkconfig mongod on'");
     runCommand("guestfish -a ".$Bin."/nodes/".$boss_name.".img -i command '/sbin/chkconfig ntpd on'");
-    runCommand("guestfish -a ".$Bin."/nodes/".$boss_name.".img -i command '/sbin/chkconfig ntpdate on'");
 
     # copy scripts
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$boss_name.".img ".$tmpdir."/update_nlp_components_boss.sh /home/newsreader");
@@ -162,9 +161,8 @@ sub createWorkerVM {
     # copy puppet.conf file
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img  ".$tmpdir."/puppet.conf /etc/puppet/");
 
-    # ntpdate on
-    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i command '/sbin/chkconfig ntpd on'");
-    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i command '/sbin/chkconfig ntpdate on'");
+    # ntpd / Don't activate we'll sync time in workers using puppet
+    #    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i command '/sbin/chkconfig ntpd on'");    
 
     # copy scripts
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/update_nlp_components_worker.sh /home/newsreader");
@@ -240,7 +238,8 @@ sub createPuppetFiles {
     print PFILE "import \"run-kafka.pp\"\n";
     print PFILE "import \"run-storm-boss.pp\"\n";
     print PFILE "import \"run-storm-worker.pp\"\n";
-    print PFILE "import \"create-dbpedia-logdir\"\n";
+    print PFILE "import \"create-dbpedia-logdir.pp\"\n";
+    print PFILE "import \"sync-time-worker.pp\"\n";
     print PFILE "\n";
     print PFILE "node '$boss_name' {\n";
     print PFILE "  include copy-hosts-file\n";
@@ -256,6 +255,7 @@ sub createPuppetFiles {
     print PFILE "\n";
     
     print PFILE "node default {\n";
+    print PFILE "  include sync-time-worker\n";
     print PFILE "  include create-hosts-file\n";
     print PFILE "  include install-storm\n";
     print PFILE "  include create-worker-scripts\n";

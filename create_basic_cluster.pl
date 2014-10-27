@@ -156,6 +156,9 @@ sub createWorkerVM {
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/network.".$nodename." /etc/sysconfig/");
     runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i mv /etc/sysconfig/network.".$nodename." /etc/sysconfig/network");
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/hosts /etc/");
+    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/known_hosts /root/.ssh");
+    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/known_hosts /home/newsreader/.ssh");
+    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i command '/bin/chown 500:500 /home/newsreader/.ssh/known_hosts'");
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/ntp.conf /etc");
 
     # copy puppet.conf file
@@ -189,6 +192,7 @@ sub createKnownHostsFile {
     chomp $rsakey;
     
     open HFILE, ">".$tmpdir."/known_hosts" or finish("ERROR: Cannot create ".$tmpdir."/known_hosts");
+    print HFILE "$master_ip $rsakey\n";
     print HFILE "$boss_ip,$boss_name $rsakey\n";
     print HFILE "$worker_ip,$worker_name $rsakey\n";    
     close HFILE;

@@ -1,6 +1,15 @@
-
 class create-worker-scripts () {
 
+  file { '/etc/rc0.d/K01worker_servers':
+    ensure => 'link',
+    target => '/home/newsreader/opt/sbin/init.d/worker_servers',
+  }
+
+  file { '/etc/rc6.d/K01worker_servers':
+    ensure => 'link',
+    target => '/home/newsreader/opt/sbin/init.d/worker_servers',
+  }
+  
   file { 'opt-bin-dir':
     name => '/opt/bin',
     ensure => 'directory',
@@ -8,20 +17,6 @@ class create-worker-scripts () {
     group => root,
   }
   
-  file {'worker-start-script':
-    path    => '/opt/bin/run_worker_servers.sh',
-    ensure  => present,
-    mode    => 0755,
-    source => 'puppet:///conf_files/run_worker_servers.sh',
-  }
-
-  file {'worker-stop-script':
-    path    => '/opt/bin/stop_worker_servers.sh',
-    ensure  => present,
-    mode    => 0755,
-    source => 'puppet:///conf_files/stop_worker_servers.sh',
-  }
-
   file {'is-running':
     path    => '/opt/bin/isrunning.sh',
     ensure  => present,

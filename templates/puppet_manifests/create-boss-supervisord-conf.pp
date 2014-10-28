@@ -13,7 +13,7 @@ class create-boss-supervisord-conf () {
   }
   ->
   exec {'reload-supervisord':
-    command => '/etc/init.d/supervisord restart',
+    command => '/usr/bin/supervisorctl update',
   }
 
 }

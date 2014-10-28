@@ -228,48 +228,7 @@ sub createPuppetFiles {
     #
     runCommand ("cp -R ".$Bin."/templates/puppet_manifests ".$tmpdir."/manifests");
     # main manifest for master (site.pp)
-    open PFILE, ">".$tmpdir."/manifests/site.pp" or finish("ERROR: Cannot create ".$tmpdir."/manifests/site.pp");
-    print PFILE "import \"copy-hosts-file.pp\"\n";
-    print PFILE "import \"create-hosts-file.pp\"\n";
-    print PFILE "import \"install-zookeeper.pp\"\n";
-    print PFILE "import \"install-kafka.pp\"\n";
-    print PFILE "import \"install-storm.pp\"\n";
-    print PFILE "import \"create-boss-scripts.pp\"\n";
-    print PFILE "import \"create-worker-scripts.pp\"\n";
-    print PFILE "import \"create-boss-supervisord-conf.pp\"\n";
-    print PFILE "import \"create-worker-supervisord-conf.pp\"\n";
-    print PFILE "import \"run-zookeeper.pp\"\n";
-    print PFILE "import \"create-flush-queue-daemon-logdir.pp\"\n";
-    print PFILE "import \"run-kafka.pp\"\n";
-    print PFILE "import \"run-storm-boss.pp\"\n";
-    print PFILE "import \"run-storm-worker.pp\"\n";
-    print PFILE "import \"create-dbpedia-logdir.pp\"\n";
-    print PFILE "import \"sync-time-worker.pp\"\n";
-    print PFILE "\n";
-    print PFILE "node '$boss_name' {\n";
-    print PFILE "  include copy-hosts-file\n";
-    print PFILE "  include install-zookeeper\n";
-    print PFILE "  include install-kafka\n";
-    print PFILE "  include install-storm\n";
-    print PFILE "  include create-boss-scripts\n";
-    print PFILE "  include create-boss-supervisord-conf\n";
-    print PFILE "  include run-zookeeper\n";
-    print PFILE "  include create-flush-queue-daemon-logdir\n";
-    print PFILE "  include run-kafka\n";
-    print PFILE "  include run-storm-boss\n";
-    print PFILE "}\n";
-    print PFILE "\n";
-    
-    print PFILE "node default {\n";
-    print PFILE "  include sync-time-worker\n";
-    print PFILE "  include create-hosts-file\n";
-    print PFILE "  include install-storm\n";
-    print PFILE "  include create-worker-scripts\n";
-    print PFILE "  include create-worker-supervisord-conf\n";
-    print PFILE "  include create-dbpedia-logdir\n";
-    print PFILE "  include run-storm-worker\n";
-    print PFILE "}\n";
-    close PFILE;
+    runCommand("sed -i 's/_BOSS_NAME_/".$boss_name."/g' ".$tmpdir."/manifests/site.pp");
 
     #
     # diverse conf files 

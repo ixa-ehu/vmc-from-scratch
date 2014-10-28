@@ -43,8 +43,8 @@ if (($_FILES["file"]["size"] < 2097152) && in_array($extension, $allowedExts))
 	  move_uploaded_file($_FILES["file"]["tmp_name"], $preKafkaDir."/".$_FILES["file"]["name"]);
 	  system($pushToKafkaPath." -f ".$preKafkaDir."/".$_FILES["file"]["name"], $returnvar);
 	  unlink ($preKafkaDir."/".$_FILES["file"]["name"]);
-	  if ($returnvar == 0) { echo "FILE UPLOADED."; }
-	  else {echo "ERROR: ".$pushToKafkaPath."\n";}
+	  if ($returnvar != 0) {echo "ERROR: ".$pushToKafkaPath."\n";}
+
 	}
 
     }

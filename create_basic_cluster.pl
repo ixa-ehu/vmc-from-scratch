@@ -129,7 +129,8 @@ sub createBossVM {
     # copy scripts
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$boss_name.".img ".$tmpdir."/update_nlp_components_boss.sh /home/newsreader");
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$boss_name.".img ".$tmpdir."/init_system.sh /root/");
-    
+    runCommand("virt-copy-in -a ".$Bin."/nodes/".$boss_name.".img ".$Bin."/templates/scripts/upload_file_to_queue.php /var/www/html");
+
 }
 
 sub createWorkerVM {

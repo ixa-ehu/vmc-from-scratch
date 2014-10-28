@@ -239,6 +239,7 @@ sub createPuppetFiles {
     print PFILE "import \"create-boss-supervisord-conf.pp\"\n";
     print PFILE "import \"create-worker-supervisord-conf.pp\"\n";
     print PFILE "import \"run-zookeeper.pp\"\n";
+    print PFILE "import \"create-flush-queue-daemon-logdir.pp\"\n";
     print PFILE "import \"run-kafka.pp\"\n";
     print PFILE "import \"run-storm-boss.pp\"\n";
     print PFILE "import \"run-storm-worker.pp\"\n";
@@ -253,6 +254,7 @@ sub createPuppetFiles {
     print PFILE "  include create-boss-scripts\n";
     print PFILE "  include create-boss-supervisord-conf\n";
     print PFILE "  include run-zookeeper\n";
+    print PFILE "  include create-flush-queue-daemon-logdir\n";
     print PFILE "  include run-kafka\n";
     print PFILE "  include run-storm-boss\n";
     print PFILE "}\n";

@@ -314,10 +314,10 @@ sub createScripts() {
 
 sub checkDeps {
     
-    if (!-f "/usr/bin/wget" || !-x "/usr/bin/wget") { finish("We need executable /usr/bin/wget"); }
-    if (!-f "/usr/bin/virsh" || !-x "/usr/bin/virsh") { finish("We need executable /usr/bin/virsh"); }
-    if (!-f "/usr/bin/guestfish" || !-x "/usr/bin/guestfish") { finish("We need executable /usr/bin/guestfish"); }
-    if (!-f "/usr/bin/virt-copy-in" || !-x "/usr/bin/virt-copy-in") { finish("We need executable /usr/bin/virt-copy-in"); }
+    if (!-f "/usr/bin/wget" || !-x "/usr/bin/wget") { finish("ERROR: We need /usr/bin/wget"); }
+    if (!-f "/usr/bin/virsh" || !-x "/usr/bin/virsh") { finish("ERROR: We need /usr/bin/virsh"); }
+    if (!-f "/usr/bin/guestfish" || !-x "/usr/bin/guestfish") { finish("ERROR: We need /usr/bin/guestfish"); }
+    if (!-f "/usr/bin/virt-copy-in" || !-x "/usr/bin/virt-copy-in") { finish("ERROR: We need /usr/bin/virt-copy-in"); }
 
 }
 

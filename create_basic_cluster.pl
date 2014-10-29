@@ -30,7 +30,17 @@ usage() if (!GetOptions('help|?' => \$help, 'master-ip=s'=> \$master_ip, 'boss-i
 sub usage
 {
   print "Unknown option: @_\n" if ( @_ );
-  print "usage: ./create_basic_cluster.pl [--help|-?] [--master-ip MASTER_IP] [--boss-ip BOSS_IP] [--boss-name BOSS_NAME] [--worker-ip WORKER_IP] [--worker-name WORKER_NAME] [--gw-ip GATEWAY_IP] [--run]\n";
+  print "Usage:\n";
+  print "  create_basic_cluster.pl [--options]\n";
+  print "Options:\n";
+  print "  --help\t\t\tList available options\n";
+  print "  --master-ip MASTER_IP\t\tIP Address for master (default: 158.227.106.100)\n";
+  print "  --boss-ip BOSS_IP\t\tIP Address for boss (default: 192.168.122.100)\n";
+  print "  --boss-name BOSS_NAME\t\tName for boss (default: bossvm)\n";
+  print "  --worker-ip WORKER_IP\t\tIP Address for worker (default: 192.168.122.101)\n";
+  print "  --worker-name WORKER_NAME\tName for worker (default: workervm0)\n";
+  print "  --gw-ip GATEWAY_IP\t\tIP Address for gateway (default: 192.168.122.1)\n";
+  print "  --run\t\t\t\tStart basic cluster with 'virsh create'\n";
   exit;
 }
 

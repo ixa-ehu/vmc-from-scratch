@@ -28,7 +28,14 @@ usage() if ( !GetOptions('help|?' => \$help, 'boss-img=s' => \$boss_img, 'worker
 sub usage
 {
   print "Unknown option: @_\n" if ( @_ );
-  print "usage: ./cp_worker.pl [--help|?] --boss-img BOSS_IMG_FILE --worker-img WORKER_IMG_FILE --out-dir OUT_DIR --gw-ip GATEWAY_IP NEW_WORKER_IP,NEW_WORKER_NAME NEW_WORKER_IP2,NEW_WORKER_NAME2 ...\n";
+  print "Usage:\n";
+  print "  cp_worker.pl [--options] new_worker_ip,new_worker_name [new_worker_ip,new_worker_name ...]\n";
+  print "Options:\n";
+  print "  --help\t\t\tList available options\n";
+  print "  --boss-img BOSS_IMG_FILE\tBoss VM image file (default: ./nodes/bossvm.img)\n";
+  print "  --worker-img WORKER_IMG_FILE\tWorker VM image file (default: ./nodes/workervm0.img)\n";
+  print "  --out-dir OUT_DIR\t\tWhere to create new VM definition and image (default ./nodes)\n";
+  print "  --gw-ip GATEWAY_IP\t\tIP Address for gateway (default: 192.168.122.1)\n";
   exit;
 }
 

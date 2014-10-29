@@ -151,7 +151,7 @@ sub createWorkerVM {
     # prepare img
 
     runCommand("cp ".$Bin."/img/base.img ".$Bin."/nodes/".$nodename.".img");
-    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm /etc/udev/rules.d/70-persistent-net.rules &> /dev/null");
+    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm /etc/udev/rules.d/70-persistent-net.rules");
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/ifcfg-eth0.".$nodename." /etc/sysconfig/network-scripts/");
     runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i mv /etc/sysconfig/network-scripts/ifcfg-eth0.".$nodename." /etc/sysconfig/network-scripts/ifcfg-eth0");
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/network.".$nodename." /etc/sysconfig/");

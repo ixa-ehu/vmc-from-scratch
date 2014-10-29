@@ -39,6 +39,8 @@ sub usage
   exit;
 }
 
+my $out_dir_f = $out_dir;
+$ot_dir_f =~ s/\//\\\//g;
 
 if ($#ARGV >= 0) {
 
@@ -89,26 +91,26 @@ sub createWorkerVM {
     my $uuid = `uuidgen`;
     chomp $uuid;
     $uuid =~ s/\-/\\\-/g;
-    runCommand("cp ".$Bin."/templates/vmdef/def.xml ".$Bin."/nodes/".$nodename.".xml");
-    runCommand("sed -i 's/_VM_NAME_/".$nodename."/g' ".$Bin."/nodes/".$nodename.".xml");
-    runCommand("sed -i 's/_UUID_/".$uuid."/g' ".$Bin."/nodes/".$nodename.".xml");
-    runCommand("sed -i 's/_IMG_PATH_/".$Bin_f."\\/nodes\\/".$nodename.".img/g' ".$Bin."/nodes/".$nodename.".xml");
-    runCommand("sed -i 's/_MACADDR_/".$macarray[$i]."/g' ".$Bin."/nodes/".$nodename.".xml");
+    runCommand("cp ".$Bin."/templates/vmdef/def.xml ".$out_dir."/".$nodename.".xml");
+    runCommand("sed -i 's/_VM_NAME_/".$nodename."/g' ".$out_dir."/".$nodename.".xml");
+    runCommand("sed -i 's/_UUID_/".$uuid."/g' ".$out_dir."/".$nodename.".xml");
+    runCommand("sed -i 's/_IMG_PATH_/".$out_dir_f."\\/".$nodename.".img/g' ".$out_dir."/".$nodename.".xml");
+    runCommand("sed -i 's/_MACADDR_/".$macarray[$i]."/g' ".$out_dir."/".$nodename.".xml");
 
     # prepare img
 
-    runCommand("cp ".$worker_img."  ".$Bin."/nodes/".$nodename.".img");
-    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm /etc/udev/rules.d/70-persistent-net.rules &> /dev/null");
-    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm-rf /var/lib/puppet &> /dev/null");
-    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm-rf /var/lib/storm/supervisor &> /dev/null");
-    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i rm-rf /var/lib/storm/workers &> /dev/null");
-    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/ifcfg-eth0.".$nodename." /etc/sysconfig/network-scripts/");
-    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i mv /etc/sysconfig/network-scripts/ifcfg-eth0.".$nodename." /etc/sysconfig/network-scripts/ifcfg-eth0");
-    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/network.".$nodename." /etc/sysconfig/");
-    runCommand("guestfish -a ".$Bin."/nodes/".$nodename.".img -i mv /etc/sysconfig/network.".$nodename." /etc/sysconfig/network");
-    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/hosts /etc/");
-    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/known_hosts /root/.ssh");
-    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nodename.".img ".$tmpdir."/known_hosts /home/newsreader/.ssh");
+    runCommand("cp ".$worker_img."  ".$out_dir."/".$nodename.".img");
+    runCommand("guestfish -a ".$out_dir."/".$nodename.".img -i rm /etc/udev/rules.d/70-persistent-net.rules &> /dev/null");
+    runCommand("guestfish -a ".$out_dir."/".$nodename.".img -i rm-rf /var/lib/puppet &> /dev/null");
+    runCommand("guestfish -a ".$out_dir."/".$nodename.".img -i rm-rf /var/lib/storm/supervisor &> /dev/null");
+    runCommand("guestfish -a ".$out_dir."/".$nodename.".img -i rm-rf /var/lib/storm/workers &> /dev/null");
+    runCommand("virt-copy-in -a ".$out_dir."/".$nodename.".img ".$tmpdir."/ifcfg-eth0.".$nodename." /etc/sysconfig/network-scripts/");
+    runCommand("guestfish -a ".$out_dir."/".$nodename.".img -i mv /etc/sysconfig/network-scripts/ifcfg-eth0.".$nodename." /etc/sysconfig/network-scripts/ifcfg-eth0");
+    runCommand("virt-copy-in -a ".$out_dir."/".$nodename.".img ".$tmpdir."/network.".$nodename." /etc/sysconfig/");
+    runCommand("guestfish -a ".$out_dir."/".$nodename.".img -i mv /etc/sysconfig/network.".$nodename." /etc/sysconfig/network");
+    runCommand("virt-copy-in -a ".$out_dir."/".$nodename.".img ".$tmpdir."/hosts /etc/");
+    runCommand("virt-copy-in -a ".$out_dir."/".$nodename.".img ".$tmpdir."/known_hosts /root/.ssh");
+    runCommand("virt-copy-in -a ".$out_dir."/".$nodename.".img ".$tmpdir."/known_hosts /home/newsreader/.ssh");
 
 }
 

@@ -40,7 +40,7 @@ sub usage
 }
 
 my $out_dir_f = $out_dir;
-$ot_dir_f =~ s/\//\\\//g;
+$out_dir_f =~ s/\//\\\//g;
 
 if ($#ARGV >= 0) {
 

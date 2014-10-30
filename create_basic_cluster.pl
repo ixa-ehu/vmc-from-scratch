@@ -222,7 +222,7 @@ sub createPuppetFiles {
     print PFILE "    rundir = /var/run/puppet\n";
     print PFILE "    ssldir = \$vardir/ssl\n";
     print PFILE "    server=$boss_name\n";
-    print PFILE "    runinterval=1h\n";
+    print PFILE "    runinterval=3600\n";
     print PFILE "[master]\n";
     print PFILE "    autosign = true\n";
     print PFILE "[agent]\n";

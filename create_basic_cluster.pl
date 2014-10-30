@@ -18,6 +18,7 @@ my $gw_ip = "192.168.122.1";
 my $boss_mac = createMac();
 my $worker_mac = createMac();
 my $run_vms = 0;
+my $disable_dbpedia = 0;
 my $help;
 my $command;
 
@@ -25,7 +26,7 @@ my $command;
 my $tmpdir = File::Temp->newdir( DIR => "/tmp" );
 
 
-usage() if (!GetOptions('help|?' => \$help, 'master-ip=s'=> \$master_ip, 'boss-ip=s' => \$boss_ip, 'boss-name=s' => \$boss_name, 'worker-ip=s' => \$worker_ip, 'worker-name=s' => \$worker_name, 'gw-ip=s' => \$gw_ip, 'run' => \$run_vms) or defined $help);
+usage() if (!GetOptions('help|?' => \$help, 'master-ip=s'=> \$master_ip, 'boss-ip=s' => \$boss_ip, 'boss-name=s' => \$boss_name, 'worker-ip=s' => \$worker_ip, 'worker-name=s' => \$worker_name, 'gw-ip=s' => \$gw_ip, 'run' => \$run_vms, 'disable-dbpedia' => \$disable_dbpedia) or defined $help);
 
 sub usage
 {
@@ -40,6 +41,7 @@ sub usage
   print "  --worker-ip WORKER_IP\t\tIP Address for worker (default: 192.168.122.101)\n";
   print "  --worker-name WORKER_NAME\tName for worker (default: workervm0)\n";
   print "  --gw-ip GATEWAY_IP\t\tIP Address for gateway (default: 192.168.122.1)\n";
+  print "  --disable-dbpedia\t\tDon't run dbpedia-spotlight on workers.\n";
   print "  --run\t\t\t\tStart basic cluster with 'virsh create'\n";
   exit;
 }
@@ -246,6 +248,10 @@ sub createPuppetFiles {
     # diverse conf files 
     #
     runCommand("cp -R ".$Bin."/templates/conf_files ".$tmpdir."/");
+    if ($disable_dbpedia == 1) { 
+	runCommand("mv ".$tmpdir."/conf_files/worker_supervisord.conf ".$tmpdir."/conf_files/worker_supervisord.conf.dbpedia_enabled");
+	runCommand("mv ".$tmpdir."/conf_files/worker_supervisord.conf.dbpedia_disabled ".$tmpdir."/conf_files/worker_supervisord.conf");
+    } 
     # storm.conf
     runCommand("sed -i 's/_BOSS_NAME_/".$boss_name."/g' ".$tmpdir."/conf_files/storm.conf");
     # isrunning_zookeeper.sh

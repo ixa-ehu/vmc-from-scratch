@@ -22,7 +22,6 @@ my @macarray;
 # tmp dir
 my $tmpdir = File::Temp->newdir( DIR => "/tmp" );
 
-
 usage() if ( !GetOptions('help|?' => \$help, 'boss-img=s' => \$boss_img, 'worker-img=s' => \$worker_img, 'out-dir=s' => \$out_dir, 'gw-ip=s' => \$gw_ip) or defined $help );
 
 sub usage
@@ -38,6 +37,11 @@ sub usage
   print "  --gw-ip GATEWAY_IP\t\tIP Address for gateway (default: 192.168.122.1)\n";
   exit;
 }
+
+
+# is bossvm running
+my $boss_is_alive = isVMImageRunning($boss_img);
+
 
 my $out_dir_f = $out_dir;
 $out_dir_f =~ s/\//\\\//g;
@@ -76,9 +80,23 @@ if ($#ARGV >= 0) {
 
 sub updateBossImg {
     
-    runCommand("virt-copy-in -a ".$boss_img." ".$tmpdir."/hosts /etc/");
-    runCommand("virt-copy-in -a ".$boss_img." ".$tmpdir."/known_hosts /root/.ssh");
+    if ($boss_is_alive) {
+
+	runCommand("cp ".$tmpdir."/hosts ".$Bin."/nodes");
+	runCommand("cp ".$tmpdir."/known_hosts ".$Bin."/nodes");
+	print "Please copy ".$Bin."/nodes/hosts file to /etc/hosts in bossvm.\n";
+	print "Please copy ".$Bin."/nodes/known_hosts file to /root/.ssh/known_hosts and /home/newsreader/.ssh/known_hosts in bossvm.\n";
+
+    }
+    else {
+
+	runCommand("virt-copy-in -a ".$boss_img." ".$tmpdir."/hosts /etc/");
+	runCommand("virt-copy-in -a ".$boss_img." ".$tmpdir."/known_hosts /root/.ssh");
+	runCommand("virt-copy-in -a ".$boss_img." ".$tmpdir."/known_hosts /home/newsreader/.ssh");
+	runCommand("guestfish -a ".$boss_img." -i command '/bin/chown 500:500 /home/newsreader/.ssh/known_hosts'");
     
+    }
+
 }
 
 sub createWorkerVM {
@@ -227,5 +245,14 @@ sub runCommand {
     my ($command) = @_;
     system ($command) == 0
 	or finish("FAILED: ".$command);
+
+}
+
+sub isVMImageRunning {
+
+    my ($image_to_test) = @_;
+    my $res_ls = `virt-ls -a $image_to_test /var/lock/subsys`;
+    if ($res_ls eq "") {return 0;}
+    else {return 1;}
 
 }

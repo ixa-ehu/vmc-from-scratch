@@ -2,12 +2,12 @@ class create-worker-scripts () {
 
   file { '/etc/rc0.d/K01worker_servers':
     ensure => 'link',
-    target => '/home/newsreader/opt/sbin/init.d/worker_servers',
+    target => '/home/newsreader/opt/init.d/worker_servers',
   }
 
   file { '/etc/rc6.d/K01worker_servers':
     ensure => 'link',
-    target => '/home/newsreader/opt/sbin/init.d/worker_servers',
+    target => '/home/newsreader/opt/init.d/worker_servers',
   }
   
   file { 'opt-bin-dir':

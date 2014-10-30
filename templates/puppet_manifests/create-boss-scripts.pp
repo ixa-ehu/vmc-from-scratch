@@ -3,12 +3,12 @@ class create-boss-scripts () {
 
   file { '/etc/rc0.d/K01boss_servers':
     ensure => 'link',
-    target => '/home/newsreader/opt/sbin/init.d/boss_servers',
+    target => '/home/newsreader/opt/init.d/boss_servers',
   }
 
   file { '/etc/rc6.d/K01boss_servers':
     ensure => 'link',
-    target => '/home/newsreader/opt/sbin/init.d/boss_servers',
+    target => '/home/newsreader/opt/init.d/boss_servers',
   }
 
   file { 'opt-bin-dir':

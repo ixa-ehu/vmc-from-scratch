@@ -8,7 +8,7 @@ class run-boss-servers () {
   
   exec { 'run-boss-servers':
 
-    command => "/home/newsreader/opt/sbin/init.d/boss_servers start",
+    command => "/home/newsreader/opt/init.d/boss_servers start",
     onlyif => "/usr/bin/test ! -f /var/lock/subsys/boss_servers"
 
   }

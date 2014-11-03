@@ -63,7 +63,7 @@
 This document describes the distributed pipeline implemented within the
 NewsReader project. The pipeline follows an streaming computing
 architecture, where the computation is not limited to any
-timeframe. Instead, the pipeline is always listening to the arrival of new
+timeframe. Instead, the pipeline is always waiting to the arrival of new
 documents, and one such new document arrives the NLP processing starts.
 
 Figure \ref{fig:main-arch-nwr} shows a general overview of the NewsReader
@@ -86,7 +86,11 @@ specified directory.
 
 The boss node implements a REST service that accept documents to the
 processing pipeline. For instance, the following command sends the document
-\texttt{doc.xml} to the processing pipeline:
+\texttt{doc.xml} to the processing pipeline\footnote{In this document we
+  will show many examples which are commands to execute from the CLI. If the
+  command has to be executed from the host machine, we will use the '\%'
+  character in the beginning of the line. If the command is meant to be
+  executed from the boss machine, we will use the '\$' character.}:
 
 \begin{verbatim}
 % curl --form "file=@doc.xml" http://BOSSIP:PORT/cm_upload_text_file.php
@@ -113,18 +117,19 @@ working cluster for distributed NLP processing. We call these scripts ``VM
 from scratch'', as they create and configure the required virtual
 machines. The scripts are in a github repository, at this address:
 
+\begin{center}
+  \texttt{https://github.com/ixa-ehu/vmc-from-scratch}
+\end{center}
+
+The latest version of the documentation is also in the same repository,
+under the \texttt{doc} directory.
+
 Creating a cluster using the scripts involves three main steps:
 \begin{enumerate}
 \item Create a basic cluster with the boss node and one worker node.
 \item Make as many copies as required of the worker node.
 \item Deploy the worker copies among different hosts and run the cluster.
 \end{enumerate}
-
-\noindent \textbf{Note}: Please note that the VM images created by these
-scripts are huge (9 Gb memory), as they contain all the NLP modules of the
-Newsreader processing pipeline. Likewise, the machine to install those VMs
-need to have a large amount of RAM memory, as each VM, particularly the
-worker nodes, need circa 10Gb of memory to run.
 
 The subsections below will describe how to use the provided scripts to
 achieve these goals in turn.
@@ -133,9 +138,14 @@ achieve these goals in turn.
 \label{sec:create-basic-cluster}
 
 The first step is to create the basic cluster using the
-\texttt{create\_basic\_cluster.pl} script. The script is executed as
-follows\footnote{In ubuntu machines, install the following packages before
-  running this script
+\texttt{create\_basic\_cluster.pl} script. Please note that the VM images
+created by these scripts are huge (9 Gb memory), as they contain all the NLP
+modules of the Newsreader processing pipeline. Likewise, the machine to
+install those VMs need to have a large amount of RAM memory, as each VM,
+particularly the worker nodes, need circa 10Gb of memory to run.
+
+The script is executed as follows\footnote{In ubuntu machines, install the
+  following packages before running this script
   \begin{itemize}
   \item libvirt-bin
   \item libguestfs-tools
@@ -162,9 +172,9 @@ follows\footnote{In ubuntu machines, install the following packages before
   worker VM created by this script.
 \item \texttt{--worker-name} (\textbf{required}) the hostname of the worker
   VM.
-\item \texttt{--master-ip} (\textbf{optional}) the hostname of the worker
-  VMthe IP address of the IXA master. This machine is where the latest
-  version of all NLP modules are.
+\item \texttt{--master-ip} (\textbf{optional}) the IP address of the IXA
+  master machine. This machine is where the latest version of all NLP
+  modules are.
 \end{itemize}
 
 The script will perform the following steps for creating the basic cluster:
@@ -210,7 +220,7 @@ $ sudo /root/init_system.sh
 %$
 
 This command prepares installs all required software into both virtual
-machines (boss and worker). Specifically, the scipt performs the following steps:
+machines (boss and worker). Specifically, the script performs the following steps:
 \begin{itemize}
 \item Install the required software into the boss VM. This involves the
   installation, among others, of the following packages:
@@ -291,6 +301,35 @@ Unlike the \texttt{create\_basic\_cluster.pl} script, the
 this step we need to boot the cluster manually. The next section explains
 how to power on and power off the whole cluster at any time.
 
+\subsubsection*{Creating copies of the worker without stopping the cluster}
+\label{sec:creat-copi-work}
+
+The requirement of having to stop the cluster before making copies of the
+workers may too hard to fulfill, in the case the cluster is running and
+processing documents. Therefore, we present is a method to create worker
+nodes without the need to stop the whole cluster. However, this method needs
+a copy if a worker image, and it is very important that this particular
+image is not running.
+
+For creating a worker without stopping the cluster, execute the following:
+
+\begin{verbatim}
+%  sudo ./cp_worker.pl  --boss-img nodes/bossvm.img \
+  --worker-img nodes/workedvm1.img \
+  192.168.122.105,workervm5
+\end{verbatim}
+
+This will create the new \texttt{workervm5} node with IP address
+\texttt{192.168.122.105}. Now, we need to log into the boss node, and
+manually add this new address to the \texttt{/etc/hosts} file:
+
+\begin{verbatim}
+% sudo echo "192.168.122.105	workervm5" >> /etc/hosts
+\end{verbatim}
+
+The next step is to stop the topology (see section
+\ref{sec:running-topology}) and run it again with the proper number of
+workers/CPUs.
 
 \subsection{Virtual machines XML definitions}
 \label{sec:virtual-machines-xml}
@@ -799,7 +838,8 @@ The worker services can also be started/stopped:
   from inside the boss VM using the \texttt{pdsh} tool. Inside the boss VM,
   write the following:
 \begin{verbatim}
-$ sudo pdsh -w ip_of_worker /home/newsreader/opt/sbin/worker_servers stop (or start)
+$ sudo pdsh -w ip_of_worker /home/newsreader/opt/sbin/worker_servers stop
+$ sudo pdsh -w ip_of_worker /home/newsreader/opt/sbin/worker_servers start
 \end{verbatim}
 %$
 \end{itemize}

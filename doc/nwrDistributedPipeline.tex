@@ -93,11 +93,11 @@ processing pipeline. For instance, the following command sends the document
   executed from the boss machine, we will use the '\$' character.}:
 
 \begin{verbatim}
-% curl --form "file=@doc.xml" http://BOSSIP:PORT/cm_upload_text_file.php
+% curl --form "file=@doc.xml" http://BOSSIP:80/cm_upload_text_file.php
 \end{verbatim}
 
 Once the NLP processing is finished, the final NAF will be stored inside the
-boss VM, under the \texttt{docs/output} directory. Ijn principle those
+boss VM, under the \texttt{docs/output} directory. In principle those
 documents should be sent to the KnowledgeStore (KS), but at the time being
 this last module which populates the KS with the processed NAFs is not
 ready.
@@ -157,7 +157,7 @@ The script is executed as follows\footnote{In ubuntu machines, install the
 
 \begin{verbatim}
 % sudo create_basic_cluster.pl --boss-ip 192.168.122.111 --boss-name bossvm \\
-  --worker-ip 192.168.122.112 --worker-name workedvm1
+  --worker-ip 192.168.122.112 --worker-name workervm1
 \end{verbatim}
 
 \noindent The scripts needs four parameters:
@@ -177,6 +177,9 @@ The script is executed as follows\footnote{In ubuntu machines, install the
   modules are.
 \end{itemize}
 
+Use the \texttt{--help} option to obtain information about the script's
+parameters (this option is present in all scripts described here).
+
 The script will perform the following steps for creating the basic cluster:
 \begin{itemize}
 \item Copy an empty VM image from the IXA servers.
@@ -184,7 +187,7 @@ The script will perform the following steps for creating the basic cluster:
   above, the hostname of the boss VM is ``\textrm{bossvm}'' ans its IP
   address is \texttt{192.168.122.111}.
 \item Create the worker VM image using the empty VM image.  In the example
-  above, the hostname of this worker VM is ``\textrm{workedvm1}'' ans its IP
+  above, the hostname of this worker VM is ``\textrm{workervm1}'' ans its IP
   address is \texttt{192.168.122.112}.
 \item The VMs have an unique user ``\texttt{newsreader}'' whose password if
   ``\texttt{readNEWS89}''. The user can \texttt{sudo} any root commands
@@ -202,7 +205,7 @@ commands as root from the host machine:
 
 \begin{verbatim}
 % virsh create nodes/bossvm.xml
-% virsh create nodes/workedvm1.xml
+% virsh create nodes/workervm1.xml
 \end{verbatim}
 
 Once the machines are up and running, we ssh into the boss VM.
@@ -235,13 +238,13 @@ machines (boss and worker). Specifically, the script performs the following step
   modules.
 \item Synchronize the worker VM with the boss VM to obtain a copy of all the
   NLP modules.
-\item Start the \emph{puppet} servers on both the boss and worker VMs.
+\item Start the \emph{puppet} agents on both the boss and worker VMs.
 \end{itemize}
 
 When the scripts finalizes the basic cluster is finally created and
 configured. The boss VM image is stored in the file
 \texttt{nodes/bossvm.img} and the worker image is
-\texttt{nodes/workedvm1.img}. The cluster is already ready for processing
+\texttt{nodes/workervm1.img}. The cluster is already ready for processing
 documents, although it does not make much sense to use a cluster with a
 single worker node. Therefore, the next step is to create the required
 copies of the worker VMs.
@@ -255,7 +258,7 @@ shut down. There are several ways to shut down the cluster. One possible way
 is, being into the boss VM, is to execute the following:
 
 \begin{verbatim}
-$ sudo pdsh -w workedvm1 poweroff
+$ sudo pdsh -w workervm1 poweroff
 $ sudo poweroff
 \end{verbatim}
 
@@ -276,11 +279,11 @@ worker nodes. The script \texttt{cp\_worker.pl} accomplishes this task:
 
 \begin{verbatim}
 %  sudo ./cp_worker.pl --boss-img nodes/bossvm.img \
-  --worker-img nodes/workedvm1.img 192.168.122.102,workervm2
+  --worker-img nodes/workervm1.img 192.168.122.102,workervm2
 \end{verbatim}
 
 The script needs two parameters with the images of the boss VM and the first
-created worker VM (\texttt{workedvm1} in out example). Then, the script
+created worker VM (\texttt{workervm1} in out example). Then, the script
 accepts a space separated list of \texttt{IP,hostname} pairs. The above
 example just creates a copy of the worker VM, called \texttt{workervm2},
 whose IP address will be \texttt{192.168.122.102}. Of course, it is very
@@ -292,14 +295,13 @@ instance, the following command will create two more worker nodes:
 
 \begin{verbatim}
 %  sudo ./cp_worker.pl  --boss-img nodes/bossvm.img \
-  --worker-img nodes/workedvm1.img \
+  --worker-img nodes/workervm1.img \
   192.168.122.103,workervm3 192.168.122.104,workervm4
 \end{verbatim}
 
-Unlike the \texttt{create\_basic\_cluster.pl} script, the
-\texttt{cp\_worker.pl} script does not initiate the cluster VMs. Thus, after
-this step we need to boot the cluster manually. The next section explains
-how to power on and power off the whole cluster at any time.
+After this step we need to boot the cluster manually. Section
+\ref{sec:boot-stopp-clust} explains how to power on and power off the whole
+cluster at any time.
 
 \subsubsection*{Creating copies of the worker without stopping the cluster}
 \label{sec:creat-copi-work}
@@ -315,7 +317,7 @@ For creating a worker without stopping the cluster, execute the following:
 
 \begin{verbatim}
 %  sudo ./cp_worker.pl  --boss-img nodes/bossvm.img \
-  --worker-img nodes/workedvm1.img \
+  --worker-img nodes/workervm1.img \
   192.168.122.105,workervm5
 \end{verbatim}
 
@@ -629,14 +631,15 @@ This tool is useful for feeding the input queue with documents from inside
 the \textrm{boss} VM. The usage is as follows:
 
 \begin{verbatim}
-$ 
+$ opt/sbin/send_to_queue -f docs/input/input.xml
 \end{verbatim}
+%$
 
 Please note that documents can be sent to the input queue from outside the
 \textrm{boss} VM, by using the following command:
 
 \begin{verbatim}
-% curl --form "file=@doc.txt" http://BOSSIP:PORT/cm_upload_text_file.php
+% curl --form "file=@input.xml" http://BOSSIP:80/cm_upload_text_file.php
 \end{verbatim}
 
 % \todo{check port, service}
@@ -653,7 +656,7 @@ or output), and the \texttt{ls\_queue} command does exactly this. This is a
 typical example of usage (from inside the \textrm{boss} VM):
 
 \begin{verbatim}
-$ opt/sbin/ls_queue.pl
+$ opt/sbin/ls_queue
 doc18.txt  1209  9   input_queue
 doc20.txt  1025  10  input_queue
 doc23.txt  2020  11  input_queue
@@ -676,7 +679,7 @@ queue. Remember that Kafka keeps all documents in the queues for some time
 the queue.
 
 \begin{verbatim}
-$ opt/sbin/ls_queue.pl -a
+$ opt/sbin/ls_queue -a
 doc1.txt   762   1   input_queue
 doc0.txt   4678  2   input_queue
 doc3.txt   9876  3   input_queue
@@ -701,7 +704,7 @@ It is also possible to list the documents of the output query, using the
 ``\texttt{-q}'' command switch to select the queue name:
 
 \begin{verbatim}
-$ opt/sbin/ls_queue.pl -q output_queue
+$ opt/sbin/ls_queue -q output_queue
 doc1.txt_065a4fe5686a240b0569d35c6f04b025.naf 222715  21   output_queue
 doc0.txt_0ff7e7f4e55ad14f085aada286f0b718.naf 219339  22   output_queue
 doc3.txt_2ab255aac76c7b7110be1fe7cf9bfd0e.naf 214548  23   output_queue
@@ -816,7 +819,25 @@ log entry has the following fields:
 \label{sec:start-stopp-serv}
 
 There are a number of scripts in the boss VM (under the \texttt{opt/init.d}
-directory) to start and stop many services. Here is a list of those scripts:
+directory) to start and stop many services. It is convenient to stop the
+puppet agent before stopping services:
+
+\begin{verbatim}
+$ sudo /etc/init.d/puppet stop
+\end{verbatim}
+%$
+
+Likewise, the puppet agent needs to be restarted after the services are
+running again:
+
+\begin{verbatim}
+$ sudo /etc/init.d/puppet start
+\end{verbatim}
+%$
+
+Here is a list of the provided scripts to start or stop the services. All
+these scripts require one command, \texttt{start} or \texttt{stop}, which
+starts or stops the service, respectively:
 \begin{itemize}
 \item \texttt{kafka\_server}: it needs a parameter, \texttt{start} or
   \texttt{stop}. The script starts or stops the kafka service (document
@@ -825,7 +846,7 @@ directory) to start and stop many services. Here is a list of those scripts:
 \item \texttt{storm\_boss\_server}: start or stop the STORM nimbus service.
 \item \texttt{boss\_servers}: this script start or stops all services in the
   boss VM.
-\item \texttt{clean\_restart\_boss\_servers}: this script erases all
+\item \texttt{wipe\_all\_boss}: this script is special and erases all
   documents of the queues. \textbf{Use it with care}! It is recommended to
   first dump the documents of the queues in some temporary directory before
   erasing the queues.

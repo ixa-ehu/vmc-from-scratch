@@ -160,7 +160,7 @@ The script is executed as follows\footnote{In ubuntu machines, install the
   --worker-ip 192.168.122.112 --worker-name workervm1
 \end{verbatim}
 
-\noindent The scripts needs four parameters:
+\noindent The script needs four parameters:
 \begin{itemize}
 \item \texttt{--boss-ip} (\textbf{required}) the IP address of the boss
   VM\footnote{In this example and in the examples below we will use private
@@ -184,12 +184,12 @@ The script will perform the following steps for creating the basic cluster:
 \begin{itemize}
 \item Copy an empty VM image from the IXA servers.
 \item Create the boss VM image using the empty VM image. In the example
-  above, the hostname of the boss VM is ``\textrm{bossvm}'' ans its IP
+  above, the hostname of the boss VM is ``\textrm{bossvm}'' and its IP
   address is \texttt{192.168.122.111}.
 \item Create the worker VM image using the empty VM image.  In the example
-  above, the hostname of this worker VM is ``\textrm{workervm1}'' ans its IP
+  above, the hostname of this worker VM is ``\textrm{workervm1}'' and its IP
   address is \texttt{192.168.122.112}.
-\item The VMs have an unique user ``\texttt{newsreader}'' whose password if
+\item The VMs have an unique user ``\texttt{newsreader}'' whose password is
   ``\texttt{readNEWS89}''. The user can \texttt{sudo} any root commands
   inside the VMs.
 \end{itemize}
@@ -283,14 +283,14 @@ worker nodes. The script \texttt{cp\_worker.pl} accomplishes this task:
 \end{verbatim}
 
 The script needs two parameters with the images of the boss VM and the first
-created worker VM (\texttt{workervm1} in out example). Then, the script
+created worker VM (\texttt{workervm1} in our example). Then, the script
 accepts a space separated list of \texttt{IP,hostname} pairs. The above
 example just creates a copy of the worker VM, called \texttt{workervm2},
 whose IP address will be \texttt{192.168.122.102}. Of course, it is very
 important that each VM receives a different hostname and IP address. 
 
 If we were to create more copies of the VM, we can just run the script
-again, the only requite being that the cluster VM can not be running. For
+again, the only requisite being that the cluster VM can not be running. For
 instance, the following command will create two more worker nodes:
 
 \begin{verbatim}
@@ -308,9 +308,9 @@ cluster at any time.
 
 The requirement of having to stop the cluster before making copies of the
 workers may too hard to fulfill, in the case the cluster is running and
-processing documents. Therefore, we present is a method to create worker
+processing documents. Therefore, we present a method to create worker
 nodes without the need to stop the whole cluster. However, this method needs
-a copy if a worker image, and it is very important that this particular
+a copy of a worker image, and it is very important that this particular
 image is not running.
 
 For creating a worker without stopping the cluster, execute the following:
@@ -425,8 +425,8 @@ environment.
 
 When the cluster is up and running, we can consult any time which worker
 machines are connected to the boss. This is easily done by querying the
-zookeeper server on the boss VM. From inside the boss VM, run the command
-line ``elinks'' web browser:
+STORM server on the boss VM. From inside the boss VM, run the command line
+``elinks'' web browser:
 
 \begin{verbatim}
 $ elinks localhost:8080
@@ -603,7 +603,7 @@ stores the final NAF documents.
 
 In principle, the usage of the queues is wholly automatic. The user sends a
 document to the input queue, and eventually the processed document is
-enqueued into the output queue. However, is important to have some basic
+enqueued into the output queue. However, it is important to have some basic
 notions about how these queues are implemented in case we want to consult
 the contents of a particular queue, or if we want to manually send or
 retrieve documents.

@@ -4,6 +4,8 @@ import "install-jzmq.pp"
 
 class install-storm () {
 
+  $stormV = 'apache-storm-0.9.3'
+
   $user = 'newsreader'
   $group = 'newsreader'
 
@@ -31,20 +33,20 @@ class install-storm () {
   }
 
   wget { 'download-storm':
-    url => 'http://ixa2.si.ehu.es/newsreader_storm_resources/storm-0.8.2.zip',
-    creates => '/tmp/storm-0.8.2.zip',
+    url => "http://ixa2.si.ehu.es/newsreader_storm_resources/${stormV}.zip",
+    creates => "/tmp/${stormV}.zip",
     require => Package['unzip-install'],
   }      
   
   exec { 'unzip':
-    command => '/usr/bin/unzip /tmp/storm-0.8.2.zip -d /opt',
+    command => "/usr/bin/unzip /tmp/${stormV}.zip -d /opt",
     require => Wget['download-storm'],
-    creates => '/opt/storm-0.8.2',
+    creates => "/opt/${stormV}",
   }
 
   file { 'storm-chown':
     ensure => directory,
-    name => '/opt/storm-0.8.2',
+    name => "/opt/${stormV}",
     owner => $user,
     group => $group,
     recurse => true,
@@ -54,7 +56,7 @@ class install-storm () {
   file { 'storm-symlnk':
     ensure => link,
     name => '/opt/storm',
-    target => '/opt/storm-0.8.2',
+    target => "/opt/${stormV}",
     owner => $user,
     group => $group,
     require => File['storm-chown'],

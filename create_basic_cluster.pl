@@ -10,6 +10,7 @@ $Bin_f =~ s/\//\\\//g;
 
 # default values
 my $master_ip = "158.227.106.100";
+my $master_port = "2223";
 my $boss_ip = "192.168.122.100";
 my $boss_name = "bossvm";
 my $worker_ip = "192.168.122.101";
@@ -26,7 +27,7 @@ my $command;
 my $tmpdir = File::Temp->newdir( DIR => "/tmp" );
 
 
-usage() if (!GetOptions('help|?' => \$help, 'master-ip=s'=> \$master_ip, 'boss-ip=s' => \$boss_ip, 'boss-name=s' => \$boss_name, 'worker-ip=s' => \$worker_ip, 'worker-name=s' => \$worker_name, 'gw-ip=s' => \$gw_ip, 'run' => \$run_vms, 'disable-dbpedia' => \$disable_dbpedia) or defined $help);
+usage() if (!GetOptions('help|?' => \$help, 'master-ip=s'=> \$master_ip, 'master-port=s'=> \$master_port, 'boss-ip=s' => \$boss_ip, 'boss-name=s' => \$boss_name, 'worker-ip=s' => \$worker_ip, 'worker-name=s' => \$worker_name, 'gw-ip=s' => \$gw_ip, 'run' => \$run_vms, 'disable-dbpedia' => \$disable_dbpedia) or defined $help);
 
 sub usage
 {
@@ -36,6 +37,7 @@ sub usage
   print "Options:\n";
   print "  --help\t\t\tList available options\n";
   print "  --master-ip MASTER_IP\t\tIP Address for master (default: 158.227.106.100)\n";
+  print "  --master-port MASTER_PORT\tPort for master ssh access (default: 2223)\n";
   print "  --boss-ip BOSS_IP\t\tIP Address for boss (default: 192.168.122.100)\n";
   print "  --boss-name BOSS_NAME\t\tName for boss (default: bossvm)\n";
   print "  --worker-ip WORKER_IP\t\tIP Address for worker (default: 192.168.122.101)\n";
@@ -307,6 +309,7 @@ sub createScripts() {
     # update_nlp_components_boss.sh
     runCommand("cp ".$Bin."/templates/scripts/update_nlp_components_boss.sh ".$tmpdir."/update_nlp_components_boss.sh");
     runCommand("sed -i 's/_MASTER_IP_/".$master_ip."/g' ".$tmpdir."/update_nlp_components_boss.sh");
+    runCommand("sed -i 's/_MASTER_PORT_/".$master_port."/g' ".$tmpdir."/update_nlp_components_boss.sh");
 
     # update_nlp_components_worker.sh
     runCommand( "cp ".$Bin."/templates/scripts/update_nlp_components_worker.sh ".$tmpdir."/update_nlp_components_worker.sh");

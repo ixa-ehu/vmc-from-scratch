@@ -93,7 +93,7 @@ processing pipeline. For instance, the following command sends the document
   executed from the boss machine, we will use the '\$' character.}:
 
 \begin{verbatim}
-% curl --form "file=@doc.xml" http://BOSSIP:80/cm_upload_text_file.php
+% curl --form "file=@doc.xml" http://BOSSIP:80upload_file_to_queue.php
 \end{verbatim}
 
 Once the NLP processing is finished, the final NAF will be stored inside the
@@ -631,7 +631,7 @@ This tool is useful for feeding the input queue with documents from inside
 the \textrm{boss} VM. The usage is as follows:
 
 \begin{verbatim}
-$ opt/sbin/send_to_queue -f docs/input/input.xml
+$ opt/sbin/push_queue -f docs/input/input.xml
 \end{verbatim}
 %$
 

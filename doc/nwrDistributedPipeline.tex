@@ -93,7 +93,7 @@ processing pipeline. For instance, the following command sends the document
   executed from the boss machine, we will use the '\$' character.}:
 
 \begin{verbatim}
-% curl --form "file=@doc.xml" http://BOSSIP:80upload_file_to_queue.php
+% curl --form "file=@doc.xml" http://BOSSIP:80/upload_file_to_queue.php
 \end{verbatim}
 
 Once the NLP processing is finished, the final NAF will be stored inside the
@@ -215,7 +215,7 @@ Once the machines are up and running, we ssh into the boss VM.
 (pass: readNEWS89)
 \end{verbatim}
 
-Once logged into the boss VM, wun the following:
+Once logged into the boss VM, run the following:
 
 \begin{verbatim}
 $ sudo /root/init_system.sh
@@ -624,7 +624,7 @@ consumed document in the queue.
 Inside the boss VM there are some tools which can help with the management
 of the queues. Currently there exist the following tools:
 
-\subsection*{\texttt{send\_to\_queue}}
+\subsection*{\texttt{push\_queue}}
 \label{sec:send-to-queue.pl}
 
 This tool is useful for feeding the input queue with documents from inside
@@ -639,13 +639,13 @@ Please note that documents can be sent to the input queue from outside the
 \textrm{boss} VM, by using the following command:
 
 \begin{verbatim}
-% curl --form "file=@input.xml" http://BOSSIP:80/cm_upload_text_file.php
+% curl --form "file=@input.xml" http://BOSSIP:80/upload_file_to_queue.php
 \end{verbatim}
 
 % \todo{check port, service}
 
 \noindent this is meant to be the principal way to send documents into the
-NewsReader pipeline. The \texttt{send\_to\_queue} tool is an auxiliary tool
+NewsReader pipeline. The \texttt{push\_queue} tool is an auxiliary tool
 for manually feeding the input queue with new documents.
 
 \subsection*{\texttt{ls\_queue}}

@@ -131,7 +131,7 @@ The command to send a document from outside the cluster is as follows:
 _More details about sending the documents to process in the [official documentation](#documentation) of the project._
 
 
-#Defining custom topologies:
+##Defining custom topologies:
 
 The topology executed by the cluster is declaratively defined in an XML document.
 Here is an excerpt of a small topology:
@@ -169,7 +169,7 @@ a document.
 _More details about the definition of topologies in the [official documentation](#documentation) of the project._
 
 
-#Documentation
+##Documentation
 
 Detailed documentation can be found under the /doc folder of this repository
 (https://github.com/ixa-ehu/vmc-from-scratch/tree/master/doc)

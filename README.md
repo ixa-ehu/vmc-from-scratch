@@ -61,7 +61,7 @@ modules) is properly installed in the newly created VMs:
 Once logged into the boss VM, run the following:
 
 ```bash
-$ sudo /root/init_system.sh
+$ sudo /root/init_system.sh -l {en|es}
 ```
 
 

@@ -64,8 +64,6 @@ Once logged into the boss VM, run the following:
 $ sudo /root/init_system.sh
 ```
 
-_More details about creating a basic cluster in the [official documentation](#documentation) of the project._
-
 
 ##Making copies of the worker node
 
@@ -85,8 +83,6 @@ the following command will create two more worker nodes:
 ```bash
 % sudo ./cp_worker.pl --boss-img nodes/bossvm.img --worker-img nodes/workervm1.img 192.168.122.102,workervm2 192.168.122.103,workervm3
 ```
-
-_More details about making copies of worker nodes in the [official documentation](#documentation) of the project._
 
 
 ##Deploying and running the cluster
@@ -109,8 +105,6 @@ $ opt/sbin/run_topology.sh -p 6 -s opt/topologies/specs/test.xml
 This will load the topology and, as a consequence, the cluster will be ready
 to accept and process documents.
 
-_More details about deplying and running the cluster in the [official documentation](#documentation) of the project._
-
 
 ##Sending documents to process
 
@@ -127,8 +121,6 @@ The command to send a document from outside the cluster is as follows:
 ```bash
 % curl --form "file=@input.xml" http://BOSSIP:80/upload_file_to_queue.php
 ```
-
-_More details about sending the documents to process in the [official documentation](#documentation) of the project._
 
 
 ##Defining custom topologies:
@@ -165,8 +157,6 @@ no value at all.
 * **procTime** (optional): the percentage of time this particular module uses when processing
 a document.
 * **numExec** (optional): the number of instances of the module that will run in parallel.
-
-_More details about the definition of topologies in the [official documentation](#documentation) of the project._
 
 
 ##Documentation

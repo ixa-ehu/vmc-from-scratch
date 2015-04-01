@@ -64,6 +64,12 @@ Once logged into the boss VM, run the following:
 $ sudo /root/init_system.sh -l {en|es}
 ```
 
+The NLP modules are installed in the boss VM when init_system.sh is called. However, to install them in the worker nodes, run the following in the boss VM:
+
+```bash
+$ sudo pdsh -w worker_ip /home/newsreader/update_nlp_components_worker.sh
+```
+
 
 ##Making copies of the worker node
 

@@ -218,9 +218,11 @@ Once the machines are up and running, we ssh into the boss VM.
 Once logged into the boss VM, run the following:
 
 \begin{verbatim}
-$ sudo /root/init_system.sh
+$ sudo /root/init_system.sh -l {en|es}
 \end{verbatim}
 %$
+
+Select \texttt{-l en} to download and install the english NLP modules, and \texttt{-l es} for spanish modules.
 
 This command prepares installs all required software into both virtual
 machines (boss and worker). Specifically, the script performs the following steps:
@@ -572,9 +574,11 @@ For synchronizing the boss node with the IXA master, log in into the boss VM
 and run the following:
 
 \begin{verbatim}
-$ sudo ./update_nlp_components_boss.sh
+$ sudo ./update_nlp_components_boss.sh -l {en|es}
 \end{verbatim}
 %$
+
+The language is selected with the argument \texttt{-l}. The value \texttt{en} means the english modules will be downloaded. In the case of the value \texttt{es}, spanish modules will be downloaded.
 
 For updating the workers there are two main options. One option is to log in
 into each of the workers and execute the following:

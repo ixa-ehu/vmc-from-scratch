@@ -58,7 +58,7 @@ modules) is properly installed in the newly created VMs:
 (pass: readNEWS89)
 ```
 
-Note: If you get an error when trying to run the VMs, you might have to edit the files nodes/bossvm.xml and nodes/workervm1.xml, and set value "/usr/bin/qemu-system-x86_64" instead of "/usr/bin/qemu-kvm" in /domain/devices/emulator element.
+*Note: If you get an error when trying to run the VMs, you might have to edit the files nodes/bossvm.xml and nodes/workervm1.xml, and set value "/usr/bin/qemu-system-x86_64" instead of "/usr/bin/qemu-kvm" in /domain/devices/emulator element.*
 
 Once logged into the boss VM, run the following:
 

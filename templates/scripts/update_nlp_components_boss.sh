@@ -28,4 +28,6 @@ if [ -z $comp ]; then
 fi
 
 wget --no-check-certificate -O - $utils | bunzip2 -c | tar xf - --directory $extract_dir
+chown -R newsreader:newsreader /home/newsreader/opt
 wget --no-check-certificate -O - $comp | bunzip2 -c | tar xf - --directory $extract_dir
+chown -R newsreader:newsreader /home/newsreader/components

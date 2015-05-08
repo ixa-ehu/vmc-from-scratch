@@ -30,7 +30,7 @@ sub usage
 {
   print "Unknown option: @_\n" if ( @_ );
   print "Usage:\n";
-  print "  create_basic_cluster.pl [--options]\n";
+  print "  create_basic_vm.pl [--options]\n";
   print "Options:\n";
   print "  --help\t\t\tList available options\n";
   print "  --master-ip MASTER_IP\t\tIP Address for master (default: 158.227.106.100)\n";
@@ -38,7 +38,7 @@ sub usage
   print "  --nrvm-ip NRVM_IP\t\tIP Address for nrvm (default: 192.168.122.100)\n";
   print "  --nrvm-name NRVM_NAME\t\tName for nrvm (default: nrvm)\n";
   print "  --gw-ip GATEWAY_IP\t\tIP Address for gateway (default: 192.168.122.1)\n";
-  print "  --disable-dbpedia\t\tDon't run dbpedia-spotlight on workers.\n";
+  print "  --disable-dbpedia\t\tDon't run dbpedia-spotlight server.\n";
   print "  --run\t\t\t\tStart basic cluster with 'virsh create'\n";
   exit;
 }

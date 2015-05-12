@@ -123,9 +123,10 @@ sub createNRVM {
     if ($disable_dbpedia == 0) {
 	runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$Bin."/templates/conf_files/nrvm_supervisord.conf.dbpedia /etc");
     }
-    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$Bin."/templates/conf_files/master_rsync_secret /etc");
+
     # copy scripts
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$tmpdir."/update_nlp_components_boss.sh /home/newsreader");
+    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$Bin."/templates/conf_files/master_rsync_secret /etc");
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$tmpdir."/init_system.sh /root/");
 
 

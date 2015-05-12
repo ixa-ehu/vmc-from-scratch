@@ -1,7 +1,5 @@
 #!/bin/bash
 
-lang=""
-
 rflag=false
 while getopts ":l:" opt; do
   case $opt in
@@ -19,8 +17,8 @@ while getopts ":l:" opt; do
   esac
 done
 
-if [ -z $comp ]; then
-    echo "update_nlp_modules.sh -l {en|es}"
+if [ -z $lang ]; then
+    echo "usage: update_nlp_modules.sh -l {en|es}"
     exit
 fi
 

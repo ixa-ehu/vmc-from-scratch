@@ -1,9 +1,6 @@
 #!/bin/bash
 
-extract_dir=/home/newsreader/
-utils="ftp://ixa.si.ehu.es/utils.tar.bz2"
-comp_en="ftp://ixa.si.ehu.es/components_en.tar.bz2"
-comp_es="ftp://ixa.si.ehu.es/components_es.tar.bz2"
+lang=""
 
 rflag=false
 while getopts ":l:" opt; do
@@ -11,9 +8,9 @@ while getopts ":l:" opt; do
       l)
 	  rflag=true;
 	  if [ $OPTARG = "en" ]; then
-	      comp=$comp_en
+	      lang="en"
 	  elif [ $OPTARG = "es" ]; then
-	      comp=$comp_es
+     	      lang="es"
 	  fi
 	  ;;
       \?)
@@ -27,7 +24,5 @@ if [ -z $comp ]; then
     exit
 fi
 
-wget --no-check-certificate -O - $utils | bunzip2 -c | tar xf - --directory $extract_dir
-chown -R newsreader:newsreader /home/newsreader/opt
-wget --no-check-certificate -O - $comp | bunzip2 -c | tar xf - --directory $extract_dir
-chown -R newsreader:newsreader /home/newsreader/components
+rsync -av --port=3333 --delete --password-file=/etc/master_rsync_secret nrvm@_MASTER_IP_::newsreadervm_"$lang"_opt /home/newsreader/opt
+rsync -av --port=3333 --delete --password-file=/etc/master_rsync_secret nrvm@_MASTER_IP_::newsreadervm_"$lang"_components /home/newsreader/components

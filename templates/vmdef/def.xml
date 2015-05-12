@@ -1,8 +1,8 @@
  <domain type="kvm">
    <name>_VM_NAME_</name>
    <uuid>_UUID_</uuid>
-   <memory>10485760</memory>
-   <currentMemory>10485760</currentMemory>
+   <memory>8388608</memory>
+   <currentMemory>8388608</currentMemory>
    <vcpu>1</vcpu>
    <os>
      <type arch="x86_64">hvm</type>

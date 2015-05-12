@@ -10,7 +10,7 @@ $Bin_f =~ s/\//\\\//g;
 
 # default values
 my $master_ip = "158.227.106.100";
-my $master_port = "2223";
+my $master_port = "3333";
 my $nrvm_ip = "192.168.122.100";
 my $nrvm_name = "nrvm";
 my $gw_ip = "192.168.122.1";
@@ -23,7 +23,7 @@ my $command;
 # tmp dir
 my $tmpdir = File::Temp->newdir( DIR => "/tmp" );
 
-
+ 
 usage() if (!GetOptions('help|?' => \$help, 'master-ip=s'=> \$master_ip, 'master-port=s'=> \$master_port, 'nrvm-ip=s' => \$nrvm_ip, 'nrvm-name=s' => \$nrvm_name, 'gw-ip=s' => \$gw_ip, 'run' => \$run_vms, 'disable-dbpedia' => \$disable_dbpedia) or defined $help);
 
 sub usage
@@ -34,7 +34,7 @@ sub usage
   print "Options:\n";
   print "  --help\t\t\tList available options\n";
   print "  --master-ip MASTER_IP\t\tIP Address for master (default: 158.227.106.100)\n";
-  print "  --master-port MASTER_PORT\tPort for master ssh access (default: 2223)\n";
+  print "  --master-port MASTER_PORT\tPort for master rsync service (default: 3333)\n";
   print "  --nrvm-ip NRVM_IP\t\tIP Address for nrvm (default: 192.168.122.100)\n";
   print "  --nrvm-name NRVM_NAME\t\tName for nrvm (default: nrvm)\n";
   print "  --gw-ip GATEWAY_IP\t\tIP Address for gateway (default: 192.168.122.1)\n";
@@ -123,9 +123,11 @@ sub createNRVM {
     if ($disable_dbpedia == 0) {
 	runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$Bin."/templates/conf_files/nrvm_supervisord.conf.dbpedia /etc");
     }
+    runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$Bin."/templates/conf_files/master_rsync_secret /etc");
     # copy scripts
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$tmpdir."/update_nlp_components_boss.sh /home/newsreader");
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$tmpdir."/init_system.sh /root/");
+
 
 
 }

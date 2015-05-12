@@ -22,13 +22,17 @@ if [ -z $lang ]; then
     exit
 fi
 
-
 # install NLP components on boss
-/home/newsreader/update_nlp_components_boss.sh -l $lang
+chmod 600 /etc/master_rsync_secret
+chown newsreader:newsreader /etc/master_rsync_secret
+mkdir /home/newsreader/opt
+chown newsreader:newsreader /home/newsreader/opt
+mkdir /home/newsreader/components
+chown newsreader:newsreader /home/newsreader/components
+su -c "/home/newsreader/update_nlp_components_boss.sh -l $lang" newsreader
 
 # if dbpedia is present enable it
 if [ -f  /etc/nrvm_supervisord.conf.dbpedia ]; then
     cp /etc/nrvm_supervisord.conf.dbpedia /etc/supervisord.conf
-    ln -s /home/newsreader/components/EHU-ned.v21 /home/newsreader/components/EHU-ned
     /usr/bin/supervisorctl update
 fi

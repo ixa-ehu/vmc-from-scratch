@@ -10,7 +10,7 @@ $Bin_f =~ s/\//\\\//g;
 
 # default values
 my $master_ip = "158.227.106.100";
-my $master_port = "2223";
+my $master_port = "3333";
 my $boss_ip = "192.168.122.100";
 my $boss_name = "bossvm";
 my $worker_ip = "192.168.122.101";
@@ -37,7 +37,7 @@ sub usage
   print "Options:\n";
   print "  --help\t\t\tList available options\n";
   print "  --master-ip MASTER_IP\t\tIP Address for master (default: 158.227.106.100)\n";
-  print "  --master-port MASTER_PORT\tPort for master ssh access (default: 2223)\n";
+  print "  --master-port MASTER_PORT\tPort for master rsync service (default: 3333)\n";
   print "  --boss-ip BOSS_IP\t\tIP Address for boss (default: 192.168.122.100)\n";
   print "  --boss-name BOSS_NAME\t\tName for boss (default: bossvm)\n";
   print "  --worker-ip WORKER_IP\t\tIP Address for worker (default: 192.168.122.101)\n";

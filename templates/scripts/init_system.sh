@@ -24,7 +24,13 @@ fi
 
 
 # install NLP components on boss
-/home/newsreader/update_nlp_components_boss.sh -l $lang
+chmod 600 /etc/master_rsync_secret
+chown newsreader:newsreader /etc/master_rsync_secret
+mkdir /home/newsreader/opt
+chown newsreader:newsreader /home/newsreader/opt
+mkdir /home/newsreader/components
+chown newsreader:newsreader /home/newsreader/components
+su -c "/home/newsreader/update_nlp_components_boss.sh -l $lang" newsreader
 # install NLP components on worker
 pdsh -w _WORKER_NAME_ /home/newsreader/update_nlp_components_worker.sh
 # install and configure software using puppet on boss

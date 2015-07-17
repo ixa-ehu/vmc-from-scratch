@@ -31,8 +31,11 @@ mkdir /home/newsreader/components
 chown newsreader:newsreader /home/newsreader/components
 su -c "/home/newsreader/update_nlp_components_boss.sh -l $lang" newsreader
 
-# if dbpedia is present enable it
-if [ -f  /etc/nrvm_supervisord.conf.dbpedia ]; then
-    cp /etc/nrvm_supervisord.conf.dbpedia /etc/supervisord.conf
+# if dbpedia_disabled file is present disable it
+if [ -f  /etc/nrvm_supervisord.conf ]; then
+    cp /etc/nrvm_supervisord.conf /etc/supervisord.conf
+    /usr/bin/supervisorctl update
+elif [ -f  /etc/nrvm_supervisord.conf.dbpedia_disabled ]; then
+    cp /etc/nrvm_supervisord.conf.dbpedia_disabled /etc/supervisord.conf
     /usr/bin/supervisorctl update
 fi

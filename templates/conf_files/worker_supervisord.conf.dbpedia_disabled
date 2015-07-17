@@ -155,6 +155,22 @@ stderr_logfile_backups=2
 priority=3
 directory=/home/newsreader
 
+[program:srl-server]
+command=/home/newsreader/components/EHU-srl-server/run-server.sh
+user=newsreader
+autostart=false
+startsecs=30
+autorestart=true
+startretries=2
+stdout_logfile=/var/log/dbpedia/spvd_stdout_srl_server.out
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=2
+stderr_logfile=/var/log/dbpedia/spvd_stderr_srl_server.out
+stderr_logfile_maxbytes=10MB
+stderr_logfile_backups=2
+priority=1
+directory=/home/newsreader
+
 ;[program:dbpedia]
 ;command=/home/newsreader/components/EHU-ned/run-server.sh
 ;user=newsreader

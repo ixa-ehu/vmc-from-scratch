@@ -120,8 +120,11 @@ sub createNRVM {
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$tmpdir."/network.".$nrvm_name." /etc/sysconfig/");
     runCommand("guestfish -a ".$Bin."/nodes/".$nrvm_name.".img -i mv /etc/sysconfig/network.".$nrvm_name." /etc/sysconfig/network");
     runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$Bin."/templates/various/ntp.conf /etc");
+
     if ($disable_dbpedia == 0) {
-	runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$Bin."/templates/conf_files/nrvm_supervisord.conf.dbpedia /etc");
+	runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$Bin."/templates/conf_files/nrvm_supervisord.conf /etc");
+    } else {
+	runCommand("virt-copy-in -a ".$Bin."/nodes/".$nrvm_name.".img ".$Bin."/templates/conf_files/nrvm_supervisord.conf.dbpedia_disabled /etc");
     }
 
     # copy scripts

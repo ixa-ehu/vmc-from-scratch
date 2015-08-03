@@ -29,8 +29,6 @@ mkdir /home/newsreader/opt
 chown newsreader:newsreader /home/newsreader/opt
 mkdir /home/newsreader/components
 chown newsreader:newsreader /home/newsreader/components
-mkdir /var/log/srl-server
-chown newsreader:newsreader /var/log/srl-server
 su -c "/home/newsreader/update_nlp_components_boss.sh -l $lang" newsreader
 # workaround to execute srl-server. SRL-server should use /tmp or another dir for this
 if [ -f /home/newsreader/components/EHU-srl-server/SRLServer.pid ]; then

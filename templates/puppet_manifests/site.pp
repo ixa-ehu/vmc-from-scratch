@@ -10,6 +10,7 @@ import "create-worker-supervisord-conf.pp"
 import "create-flush-queue-daemon-logdir.pp"
 import "create-dbpedia-logdir.pp"
 import "create-srl-server-logdir.pp"
+import "create-srl-server-pidfiledir.pp"
 import "sync-time-worker.pp"
 import "run-boss-servers.pp"
 import "run-worker-servers.pp"
@@ -33,5 +34,6 @@ node default {
   include create-worker-supervisord-conf
   include create-dbpedia-logdir
   include create-srl-server-logdir
+  include create-srl-server-pidfiledir
   include run-worker-servers
 }

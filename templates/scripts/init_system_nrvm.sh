@@ -29,11 +29,9 @@ mkdir /home/newsreader/opt
 chown newsreader:newsreader /home/newsreader/opt
 mkdir /home/newsreader/components
 chown newsreader:newsreader /home/newsreader/components
+mkdir /var/run/srl-server
+chown newsreader:newsreader /var/run/srl-server
 su -c "/home/newsreader/update_nlp_components_boss.sh -l $lang" newsreader
-# workaround to execute srl-server. SRL-server should use /tmp or another dir for this
-if [ -f /home/newsreader/components/EHU-srl-server/SRLServer.pid ]; then
-    rm /home/newsreader/components/EHU-srl-server/SRLServer.pid
-fi
 # if dbpedia_disabled file is present disable it
 if [ -f  /etc/nrvm_supervisord.conf ]; then
     cp /etc/nrvm_supervisord.conf /etc/supervisord.conf

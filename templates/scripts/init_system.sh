@@ -31,10 +31,6 @@ chown newsreader:newsreader /home/newsreader/opt
 mkdir /home/newsreader/components
 chown newsreader:newsreader /home/newsreader/components
 su -c "/home/newsreader/update_nlp_components_boss.sh -l $lang" newsreader
-# workaround to execute srl-server. SRL-server should use /tmp or another dir for this
-if [ -f /home/newsreader/components/EHU-srl-server/SRLServer.pid ]; then
-    rm /home/newsreader/components/EHU-srl-server/SRLServer.pid
-fi
 # install NLP components on worker
 pdsh -w _WORKER_NAME_ /home/newsreader/update_nlp_components_worker.sh
 # install and configure software using puppet on boss

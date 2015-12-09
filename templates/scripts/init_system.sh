@@ -31,6 +31,7 @@ chown newsreader:newsreader /home/newsreader/opt
 mkdir /home/newsreader/components
 chown newsreader:newsreader /home/newsreader/components
 su -c "/home/newsreader/update_nlp_components_boss.sh -l $lang" newsreader
+/sbin/ldconfig
 # install NLP components on worker
 pdsh -w _WORKER_NAME_ /home/newsreader/update_nlp_components_worker.sh
 # install and configure software using puppet on boss
@@ -40,3 +41,4 @@ pdsh -w _WORKER_NAME_ puppet agent --test
 # configure puppet agent to start on boot, both on boss and worker
 /sbin/chkconfig puppet on
 pdsh -w _WORKER_NAME_ /sbin/chkconfig puppet on
+pdsh -w _WORKER_NAME_ /sbin/ldconfig

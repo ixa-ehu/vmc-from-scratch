@@ -1,8 +1,12 @@
  <domain type="kvm">
    <name>_VM_NAME_</name>
    <uuid>_UUID_</uuid>
-   <memory>8388608</memory>
-   <currentMemory>8388608</currentMemory>
+   <memory>14680064</memory>
+   <currentMemory>14680064</currentMemory>
+   <!--
+   <memory>6291456</memory>
+   <currentMemory>6291456</currentMemory>
+   -->
    <vcpu>1</vcpu>
    <os>
      <type arch="x86_64">hvm</type>
@@ -17,6 +21,7 @@
    <on_crash>restart</on_crash>
    <devices>
      <emulator>/usr/bin/qemu-kvm</emulator>
+     <!-- <emulator>/usr/bin/qemu-system-x86_64</emulator> -->
      <disk type="file" device="disk">
        <driver name="qemu" type="qcow2" cache="none"/>
        <source file="_IMG_PATH_"/>

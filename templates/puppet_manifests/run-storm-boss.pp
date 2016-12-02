@@ -2,7 +2,7 @@ class run-storm-boss () {
 
   require install-storm
   require run-zookeeper
-  require run-kafka
+  require run-rabbitmq
   require create-boss-supervisord-conf
   
   exec { 'run-storm-boss-nimbus':

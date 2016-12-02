@@ -1,7 +1,7 @@
 import "copy-hosts-file.pp"
 import "create-hosts-file.pp"
 import "install-zookeeper.pp"
-import "install-kafka.pp"
+import "install-rabbitmq.pp"
 import "install-storm.pp"
 import "create-boss-scripts.pp"
 import "create-worker-scripts.pp"
@@ -18,7 +18,7 @@ import "run-worker-servers.pp"
 node '_BOSS_NAME_' {
   include copy-hosts-file
   include install-zookeeper
-  include install-kafka
+  include install-rabbitmq
   include install-storm
   include create-boss-scripts
   include create-boss-supervisord-conf

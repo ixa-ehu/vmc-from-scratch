@@ -5,6 +5,7 @@ import "install-jzmq.pp"
 class install-storm () {
 
   $stormV = 'apache-storm-0.9.3'
+  $scheduler = 'newsreader-storm-scheduler'
 
   $user = 'newsreader'
   $group = 'newsreader'
@@ -83,5 +84,20 @@ class install-storm () {
     group => $group,
     source => 'puppet:///conf_files/storm.conf',
   }
+                                                                                              |
+  wget { 'download-scheduler':                                                                |
+    url => "http://ixa2.si.ehu.es/newsreader_storm_resources/${scheduler}.jar",               |
+    path => "/opt/storm/lib",                                                                 |
+    creates => "/opt/storm/lib/${scheduler}.jar",                                             |
+    require => File['storm-symlnk'],                                                          |
+  }                                                                                           |
+                                                                                              |
+  file { 'scheduler-chown':                                                                   |
+    ensure => file,                                                                           |
+    name => "/opt/storm/lib/${scheduler}.jar",                                                |
+    owner => $user,                                                                           |
+    group => $group,                                                                          |
+    require => Wget['download-scheduler'],                                                    |
+  } 
   
 }

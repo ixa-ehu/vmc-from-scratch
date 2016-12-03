@@ -256,7 +256,8 @@ sub createPuppetFiles {
 	runCommand("mv ".$tmpdir."/conf_files/worker_supervisord.conf.dbpedia_disabled ".$tmpdir."/conf_files/worker_supervisord.conf");
     } 
     # storm.conf
-    runCommand("sed -i 's/_BOSS_NAME_/".$boss_name."/g' ".$tmpdir."/conf_files/storm.conf");
+    runCommand("sed -i 's/_BOSS_NAME_/".$boss_name."/g' ".$tmpdir."/conf_files/storm.boss.conf");
+    runCommand("sed -i 's/_BOSS_NAME_/".$boss_name."/g' ".$tmpdir."/conf_files/storm.worker.conf");
     # isrunning_zookeeper.sh
     runCommand("sed -i 's/_BOSS_NAME_/".$boss_name."/g' ".$tmpdir."/conf_files/isrunning_zookeeper.sh");
 

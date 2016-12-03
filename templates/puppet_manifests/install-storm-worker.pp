@@ -3,7 +3,7 @@ import "install-storm.pp"
 
 class install-storm-worker () {
 
-  contain install-storm
+  require install-storm
   
   file { 'storm-conf-worker':
     ensure => file,

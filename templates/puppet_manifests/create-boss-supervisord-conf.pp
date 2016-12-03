@@ -2,7 +2,7 @@
 class create-boss-supervisord-conf () {
 
   require install-zookeeper
-  require install-kafka
+  require install-rabbitmq
   require install-storm
   
   file {'boss-supervisord-conf':

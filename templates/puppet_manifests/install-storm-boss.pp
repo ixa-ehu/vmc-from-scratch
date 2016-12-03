@@ -3,7 +3,7 @@ import "install-storm.pp"
 
 class install-storm-boss () {
 
-  contain install-storm
+  require install-storm
   
   file { 'storm-conf-boss':
     ensure => file,

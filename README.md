@@ -89,7 +89,7 @@ worker nodes. The script cp_worker.pl accomplishes this task. For instance,
 the following command will create two more worker nodes:
 
 ```bash
-% sudo ./cp_worker.pl --boss-img nodes/bossvm.img --worker-img nodes/workervm1.img 192.168.122.102,workervm2 192.168.122.103,workervm3
+% sudo ./cp_worker.pl --boss-img nodes/bossvm.img --worker-img nodes/workervm1.img 192.168.122.113,workervm2 192.168.122.114,workervm3
 ```
 
 

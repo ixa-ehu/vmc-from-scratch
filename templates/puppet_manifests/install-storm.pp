@@ -43,6 +43,12 @@ class install-storm () {
     command => "/usr/bin/unzip /tmp/${stormV}.zip -d /opt",
     require => Wget['download-storm'],
     creates => "/opt/${stormV}",
+    notify => Exec['remove-conf'],
+  }
+
+  exec { 'remove-conf':
+    command => "/bin/rm /opt/${stormV}/conf/storm.yaml",
+    refreshonly => true,
   }
 
   file { 'storm-chown':

@@ -4,8 +4,8 @@
    <memory>14680064</memory>
    <currentMemory>14680064</currentMemory>
    <!--
-   <memory>6291456</memory>
-   <currentMemory>6291456</currentMemory>
+   <memory>3145728</memory>
+   <currentMemory>3145728</currentMemory>
    -->
    <vcpu>1</vcpu>
    <os>

@@ -142,7 +142,7 @@ The first step is to create the basic cluster using the
 created by these scripts are huge (9 Gb memory), as they contain all the NLP
 modules of the Newsreader processing pipeline. Likewise, the machine to
 install those VMs need to have a large amount of RAM memory, as each VM,
-particularly the worker nodes, need circa 10Gb of memory to run.
+particularly the worker nodes, need circa 14Gb of memory to run.
 
 The script is executed as follows\footnote{In ubuntu machines, install the
   following packages before running this script
@@ -156,7 +156,7 @@ The script is executed as follows\footnote{In ubuntu machines, install the
 }:
 
 \begin{verbatim}
-% sudo create_basic_cluster.pl --boss-ip 192.168.122.111 --boss-name bossvm \\
+% sudo ./create_basic_cluster.pl --boss-ip 192.168.122.111 --boss-name bossvm \\
   --worker-ip 192.168.122.112 --worker-name workervm1
 \end{verbatim}
 
@@ -281,7 +281,7 @@ worker nodes. The script \texttt{cp\_worker.pl} accomplishes this task:
 
 \begin{verbatim}
 %  sudo ./cp_worker.pl --boss-img nodes/bossvm.img \
-  --worker-img nodes/workervm1.img 192.168.122.102,workervm2
+  --worker-img nodes/workervm1.img 192.168.122.113,workervm2
 \end{verbatim}
 
 The script needs two parameters with the images of the boss VM and the first
@@ -298,7 +298,7 @@ instance, the following command will create two more worker nodes:
 \begin{verbatim}
 %  sudo ./cp_worker.pl  --boss-img nodes/bossvm.img \
   --worker-img nodes/workervm1.img \
-  192.168.122.103,workervm3 192.168.122.104,workervm4
+  192.168.122.114,workervm3 192.168.122.115,workervm4
 \end{verbatim}
 
 After this step we need to boot the cluster manually. Section
@@ -320,15 +320,15 @@ For creating a worker without stopping the cluster, execute the following:
 \begin{verbatim}
 %  sudo ./cp_worker.pl  --boss-img nodes/bossvm.img \
   --worker-img nodes/workervm1.img \
-  192.168.122.105,workervm5
+  192.168.122.116,workervm5
 \end{verbatim}
 
 This will create the new \texttt{workervm5} node with IP address
-\texttt{192.168.122.105}. Now, we need to log into the boss node, and
+\texttt{192.168.122.116}. Now, we need to log into the boss node, and
 manually add this new address to the \texttt{/etc/hosts} file:
 
 \begin{verbatim}
-% sudo echo "192.168.122.105	workervm5" >> /etc/hosts
+% sudo echo "192.168.122.116	workervm5" >> /etc/hosts
 \end{verbatim}
 
 The next step is to stop the topology (see section
@@ -350,8 +350,11 @@ things:
   changed. In fact, \textbf{we recommend to increase the number of CPUs per
     worker whenever possible}.
 \item The memory assigned to the VM (line 4, \texttt{/domain/memory}
-  element). By default VMs are assigned 10Gb of RAM (needed mostly by the
-  NED module).
+  element). By default VMs are assigned 14Gb of RAM (needed mostly by
+  the NED module). The boss VM does not need more than 3Gb of memory,
+  but this must be fixed manually. If you plan to set more than one
+  worker VM, we recommend creating a dedicated VM for the NED module,
+  as explained in section \ref{sec:dedicated}.
 \item The exact location of the image files (line 22,
   \texttt{/domain/devices/disk/source} element). If you plan to deploy the
   worker VM on a different machine, you must change this value to
@@ -468,7 +471,7 @@ have 6 CPUs working on our cluster, it makes little sense to have more than
 Inside the boss VM, run the following to run the topology:
 
 \begin{verbatim}
-$ opt/sbin/run_topology.sh -p 6 -s opt/topologies/specs/test.xml
+$ opt/sbin/run_topology.sh -g 6 -s opt/topologies/specs/test.xml
 \end{verbatim}
 %$
 
@@ -477,12 +480,13 @@ to accept and process documents.
 
 The script also accepts another optional parameter to specify the main
 configuration of the topology, the default value being
-\texttt{opt/etc/topology/topology.conf}. This configuration file is seldom
-changed within the newsreader project, and specifies values such as the port
-and addresses of various services such as zookeeper, kafka, mongoDB,
-etc. However, there is one parameter that need to be checked. The ``host''
-values (\texttt{zookeeper.host}, \texttt{kafka.host}, \texttt{mongodb.host})
-need to point to the hostname of the boss node (by default, \texttt{bossvm}).
+\texttt{opt/etc/topology/topology.conf}. This configuration file is
+seldom changed within the newsreader project, and specifies values
+such as the port and addresses of various services such as zookeeper,
+rabbitmq, mongoDB, etc. However, there is one parameter that need to
+be checked. The ``host'' values (\texttt{zookeeper.host},
+\texttt{mongodb.host}) need to point to the hostname of the boss node
+(by default, \texttt{bossvm}).
 
 \subsection{Topology XML specification}
 \label{sec:topol-xml-spec}
@@ -526,6 +530,8 @@ attributes are the following:
   module uses when processing a document.
 \item \texttt{numExec} (optional): the number of instances of the module
   that will run in parallel.
+\item \texttt{vm\_type} (optional): the type of dedicated machines this
+  module will be run on (see section \ref{sec:dedicated}).
 \end{itemize}
 
 The topology is defined by looking at the chains of \texttt{source}
@@ -545,6 +551,70 @@ the number of instances of each module. The main idea is to execute as many
 copies as possible of the most resource demanding modules. Finally, if both
 \texttt{numExec} and \texttt{procTime} are absent, the system will run one
 single instance of the module.
+
+
+\subsection{Dedicated VMs}
+\label{sec:dedicated}
+
+Dedicated VMs are those which only run certain modules of the
+pipeline. For instance, we recommend to have a dedicated VM which only
+runs the NED module, and assign 10GB to it. Then, the rest of VMs
+would not need to run the NED module and would not need more than
+5GB\footnote{Run 'sudo supervisorctl stop spotlight' command to stop
+  the NED process}.
+
+Follow the steps below to create a dedicated VM:
+
+\begin{enumerate}
+\item Edit the Storm config file of the VM
+  (/opt/storm/config/storm.yaml), and add the following lines:
+
+  \begin{verbatim}
+    supervisor.scheduler.meta:
+      vm_type: "WORKER_TYPE"  # Create your own worker types here
+  \end{verbatim}
+
+\item Restart storm-supervisor process running the following command:
+
+\begin{verbatim}
+  $ sudo supervisorctl restart storm-supervisor
+\end{verbatim}
+
+\item In topology spec file
+  (~/opt/topologies/specs/nwr\_v30\_nonlinear.xml), set the 'vm\_type'
+  attribute to each module to be run on the dedicated machine. For
+  instance, in the following topology we are defining that the EHU-ned
+  module will run on any dedicated VM of type "NEDWorker":
+
+  \begin{lstlisting}
+<topology>
+  <cluster componentsBaseDir="/home/newsreader/components"/>
+  <module name="EHU-tok" runPath="EHU-tok/run.sh"
+          input="raw" output="text"
+          procTime="10"/>
+  <module name="EHU-pos" runPath="EHU-pos/run.sh"
+          input="text" output="terms"
+          procTime="15" source="EHU-tok"/>
+  <module name="EHU-nerc" runPath="EHU-nerc/run.sh"
+          input="terms" output="entities"
+          procTime="75" source="EHU-pos"/>
+  <module name="EHU-ned" runPath="EHU-ned/run.sh"
+          input="entities" output="entities"
+          procTime="15" source="EHU-nerc" vm_type="NEDWorker"/>
+</topology>
+\end{lstlisting}
+
+\item Run the topology choosing the number of general use (-g) and
+  dedicated (-d) CPUs. For instance:
+
+\begin{verbatim}
+   $ opt/sbin/run_topology.sh -g 6 -d 1 -s opt/topologies/specs/nwr_v30_nonlinear.xml
+\end{verbatim}
+
+  \texttt{Note: Any topology running should be killed before running a
+    new topology. Use the kill\_topology.sh script located in opt/sbin
+    to kill them.}
+\end{enumerate}
 
 
 \section{Troubleshooting and tools}
@@ -612,18 +682,16 @@ notions about how these queues are implemented in case we want to consult
 the contents of a particular queue, or if we want to manually send or
 retrieve documents.
 
-The queues are implemented using ``Apache
-Kafka''\footnote{\url{http://kafka.apache.org/}}. Kafka is a messaging
-system that can be distributed among many machines and that provides fast
-and reliable access to the queue contents. Queues in Kafka are organized
-into \emph{topics} and \emph{partitions}. In NewsReader we have two topics,
-called ``\texttt{input\_queue}'' and ``\texttt{output\_queue}'',
-respectively, and each topic has one unique partition. Once a documents is
-sent to the queue, it stays there for a specific time frame, which by
-default is set to seven days. The input queue is attached to a consumer that
-continually pulls documents from the queue and sends them to the first stage
-of the processing pipeline. It also maintains an \emph{offset} to the last
-consumed document in the queue.
+The queues are implemented using
+``RabbitMQ''\footnote{\url{https://www.rabbitmq.com/}}. RabbitMQ is a
+messaging system that can be distributed among many machines and that
+provides fast and reliable access to the queue contents. In NewsReader
+we have two queues, called ``\texttt{input\_queue}'' and
+``\texttt{output\_queue}'', respectively. Once a document is sent to
+the queue, it stays there for a specific time frame, which by default
+is set to seven days. The input queue is attached to a consumer that
+continually pulls documents from the queue and sends them to the first
+stage of the processing pipeline.
 
 Inside the boss VM there are some tools which can help with the management
 of the queues. Currently there exist the following tools:
@@ -652,77 +720,79 @@ Please note that documents can be sent to the input queue from outside the
 NewsReader pipeline. The \texttt{push\_queue} tool is an auxiliary tool
 for manually feeding the input queue with new documents.
 
-\subsection*{\texttt{ls\_queue}}
-\label{sec:ls_queue}
+% LS_QUEUE: RabbitMQn inplementatu gabe!
+%
+% \subsection*{\texttt{ls\_queue}}
+% \label{sec:ls_queue}
 
-Sometimes it is useful to know which documents are present in a queue (input
-or output), and the \texttt{ls\_queue} command does exactly this. This is a
-typical example of usage (from inside the \textrm{boss} VM):
+% Sometimes it is useful to know which documents are present in a queue (input
+% or output), and the \texttt{ls\_queue} command does exactly this. This is a
+% typical example of usage (from inside the \textrm{boss} VM):
 
-\begin{verbatim}
-$ opt/sbin/ls_queue
-doc18.txt  1209  9   input_queue
-doc20.txt  1025  10  input_queue
-doc23.txt  2020  11  input_queue
-doc24.txt  347   12  input_queue
-doc26.txt  789   13  input_queue
-doc27.txt  257   14  input_queue
-doc28.txt  1675  15  input_queue
-doc29.txt  9837  16  input_queue
-doc20.txt  721   17  input_queue
-\end{verbatim}
-%$
+% \begin{verbatim}
+% $ opt/sbin/ls_queue
+% doc18.txt  1209  9   input_queue
+% doc20.txt  1025  10  input_queue
+% doc23.txt  2020  11  input_queue
+% doc24.txt  347   12  input_queue
+% doc26.txt  789   13  input_queue
+% doc27.txt  257   14  input_queue
+% doc28.txt  1675  15  input_queue
+% doc29.txt  9837  16  input_queue
+% doc20.txt  721   17  input_queue
+% \end{verbatim}
+% %$
 
-The tool displays 4 columns for each document in the queue, namely, the
-document name, the size, the offset number, and the queue name.
+% The tool displays 4 columns for each document in the queue, namely, the
+% document name, the size, the offset number, and the queue name.
 
-The above example showed the documents of the input queue waiting to be
-processed. The ``\texttt{-a}'' switch shows all the documents in the
-queue. Remember that Kafka keeps all documents in the queues for some time
-(by default, seven days). The following command shows all the documents in
-the queue.
+% The above example showed the documents of the input queue waiting to be
+% processed. The ``\texttt{-a}'' switch shows all the documents in the
+% queue. Remember that Kafka keeps all documents in the queues for some time
+% (by default, seven days). The following command shows all the documents in
+% the queue.
 
-\begin{verbatim}
-$ opt/sbin/ls_queue -a
-doc1.txt   762   1   input_queue
-doc0.txt   4678  2   input_queue
-doc3.txt   9876  3   input_queue
-doc4.txt   189   4   input_queue
-doc6.txt   875   5   input_queue
-doc7.txt   8989  6   input_queue
-doc8.txt   6735  7   input_queue
-doc9.txt   9875  8   input_queue
-doc18.txt  1209  9   input_queue
-doc20.txt  1025  10  input_queue
-doc23.txt  2020  11  input_queue
-doc24.txt  347   12  input_queue
-doc26.txt  789   13  input_queue
-doc27.txt  257   14  input_queue
-doc28.txt  1675  15  input_queue
-doc29.txt  9837  16  input_queue
-doc20.txt  721   17  input_queue
-\end{verbatim}
-%$
+% \begin{verbatim}
+% $ opt/sbin/ls_queue -a
+% doc1.txt   762   1   input_queue
+% doc0.txt   4678  2   input_queue
+% doc3.txt   9876  3   input_queue
+% doc4.txt   189   4   input_queue
+% doc6.txt   875   5   input_queue
+% doc7.txt   8989  6   input_queue
+% doc8.txt   6735  7   input_queue
+% doc9.txt   9875  8   input_queue
+% doc18.txt  1209  9   input_queue
+% doc20.txt  1025  10  input_queue
+% doc23.txt  2020  11  input_queue
+% doc24.txt  347   12  input_queue
+% doc26.txt  789   13  input_queue
+% doc27.txt  257   14  input_queue
+% doc28.txt  1675  15  input_queue
+% doc29.txt  9837  16  input_queue
+% doc20.txt  721   17  input_queue
+% \end{verbatim}
+% %$
 
-It is also possible to list the documents of the output query, using the
-``\texttt{-q}'' command switch to select the queue name:
+% It is also possible to list the documents of the output query, using the
+% ``\texttt{-q}'' command switch to select the queue name:
 
-\begin{verbatim}
-$ opt/sbin/ls_queue -q output_queue
-doc1.txt_065a4fe5686a240b0569d35c6f04b025.naf 222715  21   output_queue
-doc0.txt_0ff7e7f4e55ad14f085aada286f0b718.naf 219339  22   output_queue
-doc3.txt_2ab255aac76c7b7110be1fe7cf9bfd0e.naf 214548  23   output_queue
-doc4.txt_3762e590fe5ba62e96845491acda0656.naf 213492  24   output_queue
-doc6.txt_98aef58c8b9b824006dd3c5a0d4d87cb.naf 212985  25   output_queue
-doc7.txt_d0af8c39cd227492e6d6cf656be19491.naf 211940  26   output_queue
-doc8.txt_45d6c827fbab1ef8f211a2a0ed2d448c.naf 210390  27   output_queue
-doc9.txt_5cd1fbedf874d25391ba78ea789ebe90.naf 209767  28   output_queue
-doc18.tx_621f460498502b42d4a9ddf2401349f9.naf 209104  29   output_queue
-\end{verbatim}
-%$
+% \begin{verbatim}
+% $ opt/sbin/ls_queue -q output_queue
+% doc1.txt_065a4fe5686a240b0569d35c6f04b025.naf 222715  21   output_queue
+% doc0.txt_0ff7e7f4e55ad14f085aada286f0b718.naf 219339  22   output_queue
+% doc3.txt_2ab255aac76c7b7110be1fe7cf9bfd0e.naf 214548  23   output_queue
+% doc4.txt_3762e590fe5ba62e96845491acda0656.naf 213492  24   output_queue
+% doc6.txt_98aef58c8b9b824006dd3c5a0d4d87cb.naf 212985  25   output_queue
+% doc7.txt_d0af8c39cd227492e6d6cf656be19491.naf 211940  26   output_queue
+% doc8.txt_45d6c827fbab1ef8f211a2a0ed2d448c.naf 210390  27   output_queue
+% doc9.txt_5cd1fbedf874d25391ba78ea789ebe90.naf 209767  28   output_queue
+% doc18.tx_621f460498502b42d4a9ddf2401349f9.naf 209104  29   output_queue
+% \end{verbatim}
+% %$
 
-Note that these examples show documents consumed from the input queue are
-already processed and stored in the output queue.
+% Note that these examples show documents consumed from the input queue are
+% already processed and stored in the output queue.
 
 \subsection*{\texttt{flush\_queue}}
 \label{sec:flush_queue}
@@ -742,9 +812,6 @@ $ opt/sbin/flush_queue -q output_queue -o path_to_docs
 The parameters of the script are the following:
 \begin{itemize}
 \item \texttt{-o} (\textbf{required}): the directory to dump the documents.
-\item \texttt{-f} (optional): by default the script will not overwrite any
-  existing document in the output directory. Set this parameter to overwrite
-  the documents.
 \item \texttt{-q} (optional): the queue to flush. If omitted, the script
   dumps the document from the \texttt{output\_queue} queue.
 \end{itemize}
@@ -843,9 +910,9 @@ Here is a list of the provided scripts to start or stop the services. All
 these scripts require one command, \texttt{start} or \texttt{stop}, which
 starts or stops the service, respectively:
 \begin{itemize}
-\item \texttt{kafka\_server}: it needs a parameter, \texttt{start} or
-  \texttt{stop}. The script starts or stops the kafka service (document
-  queues), respectively.
+% \item \texttt{kafka\_server}: it needs a parameter, \texttt{start} or
+%   \texttt{stop}. The script starts or stops the kafka service (document
+%   queues), respectively.
 \item \texttt{zookeeper\_server}: start or stop the zookeeper service.
 \item \texttt{storm\_boss\_server}: start or stop the STORM nimbus service.
 \item \texttt{boss\_servers}: this script start or stops all services in the
@@ -871,3 +938,8 @@ $ sudo pdsh -w ip_of_worker /home/newsreader/opt/sbin/worker_servers start
 
 
 \end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

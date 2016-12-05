@@ -65,7 +65,7 @@ modules) is properly installed in the newly created VMs:
 
 *Note: Worker VMs need 14GB of memory to run all modules of the
  pipeline. The most efficient solution in this case is to create a
- dedicated machine which only runs the NED module, as this module
+ [dedicated machine](#dedicated-vms) which only runs the NED module, as this module
  needs circa 9GB of memory, and create as many VMs as needed without
  the NED module and only 5GB of memory. The boss VM does not need more
  memory than 3GB to run, but please note that all VMs (including the
@@ -231,7 +231,7 @@ module will run on any dedicated VM of type "NEDWorker":
 $ opt/sbin/run_topology.sh -g 6 -d 1 -s opt/topologies/specs/nwr_v30_nonlinear.xml
 ```
 
-* Note: Any topology running should be killed before running a new topology. Use the kill_topology.sh (opt/sbin) script to kill them.
+*Note: Any topology running should be killed before running a new topology. Use the kill_topology.sh (opt/sbin) script to kill them.*
 
 ##Documentation
 

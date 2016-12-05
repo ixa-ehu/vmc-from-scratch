@@ -30,7 +30,8 @@ Creating a cluster using the scripts involves three main steps:
 3. [Deploying and running the cluster](#deploying-and-running-the-cluster)
 4. [Sending documents to process](#sending-documents-to-process)
 5. [Defining custom topologies](#defining-custom-topologies)
-6. [Detailed documentation](#documentation)
+6. [Dedicated VMs](#dedicated-vms)
+7. [Detailed documentation](#documentation)
 
 
 ##Creating a basic cluster

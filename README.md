@@ -39,12 +39,12 @@ The first step is to create the basic cluster using the create_basic_cluster.pl
 script. The script is executed as follows:
 
 ```bash
-% sudo create_basic_cluster.pl --boss-ip 192.168.122.111 --boss-name bossvm --worker-ip 192.168.122.112 --worker-name workervm1
+% sudo ./create_basic_cluster.pl --boss-ip 192.168.122.111 --boss-name bossvm --worker-ip 192.168.122.112 --worker-name workervm1
 ```
 *Please note that the VM images created by these scripts are huge (9 Gb
 memory), as they contain all the NLP modules of the Newsreader processing
 pipeline. Likewise, the machine to install those VMs need to have a large amount
-of RAM memory, as each VM, particularly the worker nodes, need circa 10Gb
+of RAM memory, as each VM, particularly the worker nodes, need circa 14Gb
 of memory to run.*
 
 The next step is to turn on both VMs and start a synchronization process
@@ -59,6 +59,8 @@ modules) is properly installed in the newly created VMs:
 ```
 
 *Note: If you get an error when trying to run the VMs, you might have to edit the files nodes/bossvm.xml and nodes/workervm1.xml, and set value "/usr/bin/qemu-system-x86_64" instead of "/usr/bin/qemu-kvm" in /domain/devices/emulator element.*
+
+*Note: Worker VMs need 14GB of memory to run all modules of the pipeline. The most efficient solution in this case is to create a dedicated machine which only runs the NED module, as this module needs circa 9GB of memory, and create as many VMs as needed without the NED module and only 5GB of memory. The boss VM does not need more memory than 3GB to run, but please note that all VMs (including the boss VM) are assigned 14GB by default. Edit the VM's definition XML file (nodes/workervmX.xml) to change the assigned amount of memory.
 
 Once logged into the boss VM, run the following:
 
@@ -107,7 +109,7 @@ For instance, if we were using 6 CPUs in our cluster, we would run the following
 boss VM to run the topology:
 
 ```bash
-$ opt/sbin/run_topology.sh -p 6 -s opt/topologies/specs/test.xml
+$ opt/sbin/run_topology.sh -g 6 -s opt/topologies/specs/test.xml
 ```
 
 This will load the topology and, as a consequence, the cluster will be ready

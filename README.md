@@ -231,7 +231,7 @@ module will run on any dedicated VM of type "NEDWorker":
 $ opt/sbin/run_topology.sh -g 6 -d 1 -s opt/topologies/specs/nwr_v30_nonlinear.xml
 ```
 
-*Note: Any topology running should be killed before running a new topology. Use the kill_topology.sh (opt/sbin) script to kill them.*
+*Note: Any topology running should be killed before running a new topology. Use the kill_topology.sh script located in opt/sbin to kill them.*
 
 ##Documentation
 

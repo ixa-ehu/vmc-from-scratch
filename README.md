@@ -58,9 +58,19 @@ modules) is properly installed in the newly created VMs:
 (pass: readNEWS89)
 ```
 
-*Note: If you get an error when trying to run the VMs, you might have to edit the files nodes/bossvm.xml and nodes/workervm1.xml, and set value "/usr/bin/qemu-system-x86_64" instead of "/usr/bin/qemu-kvm" in /domain/devices/emulator element.*
+*Note: If you get an error when trying to run the VMs, you might have
+ to edit the files nodes/bossvm.xml and nodes/workervm1.xml, and set
+ value "/usr/bin/qemu-system-x86_64" instead of "/usr/bin/qemu-kvm" in
+ /domain/devices/emulator element.*
 
-*Note: Worker VMs need 14GB of memory to run all modules of the pipeline. The most efficient solution in this case is to create a dedicated machine which only runs the NED module, as this module needs circa 9GB of memory, and create as many VMs as needed without the NED module and only 5GB of memory. The boss VM does not need more memory than 3GB to run, but please note that all VMs (including the boss VM) are assigned 14GB by default. Edit the VM's definition XML file (nodes/workervmX.xml) to change the assigned amount of memory.
+*Note: Worker VMs need 14GB of memory to run all modules of the
+ pipeline. The most efficient solution in this case is to create a
+ dedicated machine which only runs the NED module, as this module
+ needs circa 9GB of memory, and create as many VMs as needed without
+ the NED module and only 5GB of memory. The boss VM does not need more
+ memory than 3GB to run, but please note that all VMs (including the
+ boss VM) are assigned 14GB by default. Edit the VM's definition XML
+ file (nodes/workervmX.xml) to change the assigned amount of memory.*
 
 Once logged into the boss VM, run the following:
 
@@ -167,6 +177,57 @@ no value at all.
 * **procTime** (optional): the percentage of time this particular module uses when processing
 a document.
 * **numExec** (optional): the number of instances of the module that will run in parallel.
+
+
+##Dedicated VMs
+
+Dedicated VMs are those which only run certain modules of the
+pipeline. For instance, we recommend to have a dedicated VM which only
+runs the NED module, and assign 10GB to it. Then, the rest of VMs
+would not need to run the NED module and would not need more than 5GB.
+
+*Note: run 'sudo supervisorctl stop spotlight' command to stop the NED
+  process.*
+
+Follow the steps below to create a dedicated VM:
+
+1. Edit the Storm config file of the VM
+(/opt/storm/config/storm.yaml), and add the following lines:
+
+```yaml
+supervisor.scheduler.meta:
+    vm_type: "WORKER_TYPE"  # Create your own worker types here
+```
+
+2. Restart storm-supervisor process running the following command:
+
+```bash
+$ sudo supervisorctl restart storm-supervisor
+```
+
+3. In topology spec file
+(~/opt/topologies/specs/nwr_v30_nonlinear.xml), set the 'vm_type'
+attribute to each module to be run on the dedicated machine. For
+instance, in the following topology we are defining that the EHU-ned
+module will run on any dedicated VM of type "NEDWorker":
+
+```xml
+<topology>
+  <cluster componentsBaseDir="/home/newsreader/components"/>
+  <module name="EHU-tok" runPath="EHU-tok/run.sh"
+          input="raw" output="text"
+          procTime="10"/>
+  <module name="EHU-pos" runPath="EHU-pos/run.sh"
+          input="text" output="terms"
+          procTime="15" source="EHU-tok"/>
+  <module name="EHU-nerc" runPath="EHU-nerc/run.sh"
+          input="terms" output="entities"
+          procTime="75" source="EHU-pos"/>
+  <module name="EHU-ned" runPath="EHU-ned/run.sh"
+          input="entities" output="entities"
+          procTime="15" source="EHU-nerc" vm_type="NEDWorker"/>
+</topology>
+```
 
 
 ##Documentation

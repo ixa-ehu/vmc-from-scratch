@@ -191,26 +191,23 @@ would not need to run the NED module and would not need more than 5GB.
 
 Follow the steps below to create a dedicated VM:
 
-1. Edit the Storm config file of the VM
+- Edit the Storm config file of the VM
 (/opt/storm/config/storm.yaml), and add the following lines:
-
 ```yaml
 supervisor.scheduler.meta:
     vm_type: "WORKER_TYPE"  # Create your own worker types here
 ```
 
-2. Restart storm-supervisor process running the following command:
-
+- Restart storm-supervisor process running the following command:
 ```bash
 $ sudo supervisorctl restart storm-supervisor
 ```
-
-3. In topology spec file
+ 
+ - In topology spec file
 (~/opt/topologies/specs/nwr_v30_nonlinear.xml), set the 'vm_type'
 attribute to each module to be run on the dedicated machine. For
 instance, in the following topology we are defining that the EHU-ned
 module will run on any dedicated VM of type "NEDWorker":
-
 ```xml
 <topology>
   <cluster componentsBaseDir="/home/newsreader/components"/>
@@ -229,6 +226,12 @@ module will run on any dedicated VM of type "NEDWorker":
 </topology>
 ```
 
+- Run the topology choosing the number of general use (-g) and dedicated (-d) CPUs. For instance:
+```bash
+$ opt/sbin/run_topology.sh -g 6 -d 1 -s opt/topologies/specs/nwr_v30_nonlinear.xml
+```
+
+* Note: Any topology running should be killed before running a new topology. Use the kill_topology.sh (opt/sbin) script to kill them.
 
 ##Documentation
 
